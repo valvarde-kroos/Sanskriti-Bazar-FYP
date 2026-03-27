@@ -1,0 +1,133 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\OrderController;
+
+// ----------------------
+// Home & Contact
+// ----------------------
+Route::get('/', [ProductController::class, 'index'])->name('home');
+Route::view('/contact', 'contact')->name('contact');
+
+// Shop Routes (Public)
+Route::get('/shop', [App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');
+Route::get('/shop/product/{id}', [App\Http\Controllers\ShopController::class, 'show'])->name('shop.product');
+
+// ----------------------
+// Authentication
+// ----------------------
+// Show login form
+Route::get('/login', [UserController::class, 'loginForm'])->name('login');
+// Process login
+Route::post('/login', [UserController::class, 'login'])->name('login.post');
+
+// Show signup form
+Route::get('/signup', [UserController::class, 'signupForm'])->name('signup');
+// Process signup
+Route::post('/signup', [UserController::class, 'register'])->name('signup.post');
+
+// ----------------------
+// Protected routes (require login)
+// ----------------------
+Route::middleware('auth')->group(function () {
+    // Logout
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
+    // Profile (accessible by all authenticated users)
+    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
+
+    // Admin Dashboard
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/dashboard', function () {
+            return view('admin.dashboard');
+        })->name('admin.dashboard');
+
+        Route::get('/admin/vendors', [App\Http\Controllers\AdminController::class, 'vendors'])->name('admin.vendors');
+        Route::post('/admin/vendor/store', [App\Http\Controllers\AdminController::class, 'storeVendor'])->name('admin.vendor.store');
+        Route::put('/admin/vendor/update/{id}', [App\Http\Controllers\AdminController::class, 'updateVendor'])->name('admin.vendor.update');
+        Route::delete('/admin/vendor/delete/{id}', [App\Http\Controllers\AdminController::class, 'deleteVendor'])->name('admin.vendor.delete');
+
+        Route::get('/admin/customers', [App\Http\Controllers\AdminController::class, 'customers'])->name('admin.customers');
+        Route::post('/admin/customer/store', [App\Http\Controllers\AdminController::class, 'storeCustomer'])->name('admin.customer.store');
+        Route::put('/admin/customer/update/{id}', [App\Http\Controllers\AdminController::class, 'updateCustomer'])->name('admin.customer.update');
+        Route::delete('/admin/customer/delete/{id}', [App\Http\Controllers\AdminController::class, 'deleteCustomer'])->name('admin.customer.delete');
+
+        Route::get('/admin/categories', [CategoryController::class, 'adminIndex'])->name('admin.categories');
+
+        Route::get('/admin/reviews', [App\Http\Controllers\AdminController::class, 'reviews'])->name('admin.reviews');
+        Route::post('/admin/review/store', [App\Http\Controllers\AdminController::class, 'storeReview'])->name('admin.review.store');
+        Route::get('/admin/review/edit/{id}', [App\Http\Controllers\AdminController::class, 'editReview'])->name('admin.review.edit');
+        Route::put('/admin/review/update/{id}', [App\Http\Controllers\AdminController::class, 'updateReview'])->name('admin.review.update');
+        Route::delete('/admin/review/delete/{id}', [App\Http\Controllers\AdminController::class, 'deleteReview'])->name('admin.review.delete');
+
+        Route::get('/admin/products', function () {
+            return view('admin.products');
+        })->name('admin.products');
+
+        Route::get('/admin/vendor', [App\Http\Controllers\VendorController::class, 'adminVendor'])->name('admin.vendor');
+
+    });
+
+    // Vendor Dashboard
+    Route::middleware('role:vendor')->group(function () {
+        Route::get('/vendor/dashboard', [App\Http\Controllers\VendorController::class, 'dashboard'])->name('vendor.dashboard');
+        Route::get('/vendor/products', [App\Http\Controllers\VendorController::class, 'products'])->name('vendor.products');
+        Route::get('/vendor/orders', [App\Http\Controllers\VendorController::class, 'orders'])->name('vendor.orders');
+        Route::get('/vendor/sales', [App\Http\Controllers\VendorController::class, 'sales'])->name('vendor.sales');
+        Route::get('/vendor/reviews', [App\Http\Controllers\VendorController::class, 'reviews'])->name('vendor.reviews');
+        Route::get('/vendor/settings', [App\Http\Controllers\VendorController::class, 'settings'])->name('vendor.settings');
+        Route::put('/vendor/settings/profile', [App\Http\Controllers\VendorController::class, 'updateProfile'])->name('vendor.settings.profile');
+        Route::put('/vendor/settings/shop', [App\Http\Controllers\VendorController::class, 'updateShop'])->name('vendor.settings.shop');
+        Route::put('/vendor/settings/address', [App\Http\Controllers\VendorController::class, 'updateAddress'])->name('vendor.settings.address');
+        Route::put('/vendor/settings/password', [App\Http\Controllers\VendorController::class, 'updatePassword'])->name('vendor.settings.password');
+        Route::post('/vendor/product/store', [App\Http\Controllers\VendorController::class, 'storeProduct'])->name('vendor.product.store');
+        Route::put('/vendor/product/{id}/update', [App\Http\Controllers\VendorController::class, 'updateProduct'])->name('vendor.product.update');
+        Route::delete('/vendor/product/{id}/delete', [App\Http\Controllers\VendorController::class, 'deleteProduct'])->name('vendor.product.delete');
+        Route::put('/vendor/order/{id}/update', [App\Http\Controllers\VendorController::class, 'updateOrderStatus'])->name('vendor.order.update');
+    });
+
+    // Customer Dashboard
+    Route::middleware('role:customer')->group(function () {
+        Route::get('/customer/dashboard', [App\Http\Controllers\CustomerController::class, 'dashboard'])->name('customer.dashboard');
+        Route::put('/customer/profile/update', [App\Http\Controllers\CustomerController::class, 'updateProfile'])->name('customer.profile.update');
+        Route::put('/customer/password/update', [App\Http\Controllers\CustomerController::class, 'updatePassword'])->name('customer.password.update');
+        Route::get('/customer/wishlist/remove/{id}', [App\Http\Controllers\CustomerController::class, 'removeFromWishlist'])->name('customer.wishlist.remove');
+        Route::post('/customer/review/store', [App\Http\Controllers\CustomerController::class, 'storeReview'])->name('customer.review.store');
+    });
+
+    // Cart (accessible by customers and vendors)
+    Route::middleware('role:customer,vendor')->group(function () {
+        Route::get('/cart', [CartController::class, 'index'])->name('cart');
+        Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+        Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    });
+
+    // Orders (accessible by customers and vendors)
+    Route::middleware('role:customer,vendor')->group(function () {
+        Route::post('/order/place', [OrderController::class, 'placeOrder'])->name('order.place');
+    });
+
+    // Likes (accessible by all authenticated users)
+    Route::post('/product/{id}/like', [LikeController::class, 'toggle'])->name('product.like');
+
+    // Categories (admin only)
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/categories', [CategoryController::class, 'index'])->name('category.index');
+        Route::get('/categories/create', [CategoryController::class, 'create'])->name('category.create');
+        Route::post('/category/store', [CategoryController::class, 'store'])->name('category.store');
+        Route::get('/category/edit/{id}', [CategoryController::class, 'edit'])->name('category.edit');
+        Route::put('/category/update/{id}', [CategoryController::class, 'update'])->name('category.update');
+        Route::delete('/category/delete/{id}', [CategoryController::class, 'delete'])->name('category.delete');
+    });
+
+    // Products (admin and vendor)
+    Route::middleware('role:admin,vendor')->group(function () {
+        Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
+        Route::get('/product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
+    });
+});
