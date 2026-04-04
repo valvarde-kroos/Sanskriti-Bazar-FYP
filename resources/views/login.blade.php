@@ -15,6 +15,10 @@
                 <p class="success-msg">{{ session('success') }}</p>
             @endif
 
+            @if(session('message'))
+                <p class="info-msg">{{ session('message') }}</p>
+            @endif
+
             <form method="POST" action="{{ route('login.post') }}">
                 @csrf
 
@@ -41,4 +45,17 @@
         </div>
     </div>
 </div>
+
+<style>
+    .info-msg {
+        background: #dbeafe;
+        color: #1e40af;
+        padding: 12px 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid #93c5fd;
+        font-size: 14px;
+        text-align: center;
+    }
+</style>
 @endsection

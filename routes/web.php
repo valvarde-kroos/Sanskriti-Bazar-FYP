@@ -12,6 +12,7 @@ use App\Http\Controllers\OrderController;
 // Home & Contact
 // ----------------------
 Route::get('/', [ProductController::class, 'index'])->name('home');
+Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 
 // Shop Routes (Public)
@@ -59,12 +60,6 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/admin/categories', [CategoryController::class, 'adminIndex'])->name('admin.categories');
 
-        Route::get('/admin/reviews', [App\Http\Controllers\AdminController::class, 'reviews'])->name('admin.reviews');
-        Route::post('/admin/review/store', [App\Http\Controllers\AdminController::class, 'storeReview'])->name('admin.review.store');
-        Route::get('/admin/review/edit/{id}', [App\Http\Controllers\AdminController::class, 'editReview'])->name('admin.review.edit');
-        Route::put('/admin/review/update/{id}', [App\Http\Controllers\AdminController::class, 'updateReview'])->name('admin.review.update');
-        Route::delete('/admin/review/delete/{id}', [App\Http\Controllers\AdminController::class, 'deleteReview'])->name('admin.review.delete');
-
         Route::get('/admin/products', function () {
             return view('admin.products');
         })->name('admin.products');
@@ -94,22 +89,29 @@ Route::middleware('auth')->group(function () {
     // Customer Dashboard
     Route::middleware('role:customer')->group(function () {
         Route::get('/customer/dashboard', [App\Http\Controllers\CustomerController::class, 'dashboard'])->name('customer.dashboard');
-        Route::put('/customer/profile/update', [App\Http\Controllers\CustomerController::class, 'updateProfile'])->name('customer.profile.update');
-        Route::put('/customer/password/update', [App\Http\Controllers\CustomerController::class, 'updatePassword'])->name('customer.password.update');
+        Route::get('/customer/orders', [App\Http\Controllers\CustomerController::class, 'orders'])->name('customer.orders');
+        Route::get('/customer/profile', [App\Http\Controllers\CustomerController::class, 'profile'])->name('customer.profile');
+        Route::get('/customer/reviews', [App\Http\Controllers\CustomerController::class, 'reviews'])->name('customer.reviews');
+        Route::post('/customer/profile/update', [App\Http\Controllers\CustomerController::class, 'updateProfile'])->name('customer.profile.update');
+        Route::post('/customer/address/update', [App\Http\Controllers\CustomerController::class, 'updateAddress'])->name('customer.address.update');
+        Route::post('/customer/password/update', [App\Http\Controllers\CustomerController::class, 'updatePassword'])->name('customer.password.update');
+        Route::put('/customer/preferences/update', [App\Http\Controllers\CustomerController::class, 'updatePreferences'])->name('customer.preferences.update');
         Route::get('/customer/wishlist/remove/{id}', [App\Http\Controllers\CustomerController::class, 'removeFromWishlist'])->name('customer.wishlist.remove');
         Route::post('/customer/review/store', [App\Http\Controllers\CustomerController::class, 'storeReview'])->name('customer.review.store');
     });
 
-    // Cart (accessible by customers and vendors)
-    Route::middleware('role:customer,vendor')->group(function () {
-        Route::get('/cart', [CartController::class, 'index'])->name('cart');
-        Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
-        Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
-    });
+    // Cart (accessible by all users, authentication handled in controller)
+    Route::get('/cart', [CartController::class, 'index'])->name('cart');
+    Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/update-quantity/{id}', [CartController::class, 'updateQuantity'])->name('cart.update.quantity');
+    Route::get('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 
     // Orders (accessible by customers and vendors)
-    Route::middleware('role:customer,vendor')->group(function () {
+    Route::middleware('auth')->group(function () {
+        Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout');
         Route::post('/order/place', [OrderController::class, 'placeOrder'])->name('order.place');
+        Route::get('/order/success', [OrderController::class, 'orderSuccess'])->name('order.success');
     });
 
     // Likes (accessible by all authenticated users)

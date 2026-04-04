@@ -37,13 +37,6 @@
                     <span class="nav-text">Customers</span>
                 </a>
             </li>
-            
-            <li class="nav-item {{ request()->routeIs('admin.reviews*') ? 'active' : '' }}">
-                <a href="{{ route('admin.reviews') }}" class="nav-link">
-                    <i class="fas fa-star"></i>
-                    <span class="nav-text">Reviews</span>
-                </a>
-            </li>
         </ul>
     </nav>
 

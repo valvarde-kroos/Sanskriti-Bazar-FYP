@@ -14,12 +14,12 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            ['categoryName' => 'Traditional Clothing', 'image' => null],
-            ['categoryName' => 'Handicrafts', 'image' => null],
-            ['categoryName' => 'Jewelry', 'image' => null],
-            ['categoryName' => 'Home Decor', 'image' => null],
-            ['categoryName' => 'Religious Items', 'image' => null],
-            ['categoryName' => 'Musical Instruments', 'image' => null],
+            ['categoryName' => 'Madal', 'image' => null],
+            ['categoryName' => 'Bansuri', 'image' => null],
+            ['categoryName' => 'Sarangi', 'image' => null],
+            ['categoryName' => 'Damaha', 'image' => null],
+            ['categoryName' => 'Tungna', 'image' => null],
+            ['categoryName' => 'Khaijhandi', 'image' => null],
         ];
 
         foreach ($categories as $category) {

@@ -32,38 +32,62 @@ class CustomerController extends Controller
             ->latest()
             ->get();
         
-        // Get products that customer has ordered (for review form)
-        $orderedProducts = $orders->pluck('product')->unique('id');
-        
         // Calculate statistics
         $totalOrders = $orders->count();
         $pendingOrders = $orders->where('status', 'pending')->count();
-        $processingOrders = $orders->where('status', 'processing')->count();
-        $completedOrders = $orders->where('status', 'completed')->count();
+        $cartCount = $cartItems->count();
         $totalSpent = $orders->where('status', 'completed')->sum('total_price');
-        $cartTotal = $cartItems->sum(function($item) {
-            return $item->quantity * ($item->product->price ?? 0);
-        });
         
-        // Get recent orders for dashboard (limit to 3)
-        $recentOrders = $orders->take(3);
-        $wishlistCount = $wishlist->count();
+        // Get recent orders for dashboard (limit to 4)
+        $recentOrders = $orders->take(4);
         
         return view('customer.dashboard', compact(
             'customer',
-            'orders',
             'recentOrders',
-            'cartItems',
-            'wishlist',
-            'orderedProducts',
             'totalOrders',
             'pendingOrders',
-            'processingOrders',
-            'completedOrders',
-            'totalSpent',
-            'cartTotal',
-            'wishlistCount'
+            'cartCount',
+            'totalSpent'
         ));
+    }
+
+    public function orders()
+    {
+        $customer = auth()->user();
+        
+        // Get all customer's orders
+        $orders = Order::where('user_id', $customer->id)
+            ->with('product.user')
+            ->latest()
+            ->get();
+        
+        return view('customer.orders', compact('orders'));
+    }
+
+    public function profile()
+    {
+        $customer = auth()->user();
+        return view('customer.profile', compact('customer'));
+    }
+
+    public function reviews()
+    {
+        $customer = auth()->user();
+        
+        // Get customer's reviews
+        $myReviews = Review::where('user_id', $customer->id)
+            ->with('product')
+            ->latest()
+            ->get();
+        
+        // Get products that customer has ordered (for review form)
+        $orderedProducts = Order::where('user_id', $customer->id)
+            ->with('product')
+            ->get()
+            ->pluck('product')
+            ->unique('id');
+        
+        return view('customer.reviews', compact('myReviews', 'orderedProducts'));
     }
     
     public function updateProfile(Request $request)
@@ -73,7 +97,7 @@ class CustomerController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $customer->id,
-            'phone' => 'nullable|string|max:20',
+            'phone' => 'required|string|max:20',
         ]);
         
         $customer->update([
@@ -82,7 +106,7 @@ class CustomerController extends Controller
             'phone' => $request->phone,
         ]);
         
-        return back()->with('success', 'Profile updated successfully');
+        return back()->with('success', 'Profile updated successfully!');
     }
     
     public function updatePassword(Request $request)
@@ -102,7 +126,40 @@ class CustomerController extends Controller
             'password' => Hash::make($request->new_password),
         ]);
         
-        return back()->with('success', 'Password updated successfully');
+        return back()->with('success', 'Password updated successfully!');
+    }
+
+    public function updateAddress(Request $request)
+    {
+        $customer = auth()->user();
+        
+        $request->validate([
+            'address_line1' => 'required|string|max:255',
+            'address_line2' => 'nullable|string|max:255',
+            'city' => 'required|string|max:100',
+        ]);
+        
+        $customer->update([
+            'address_line1' => $request->address_line1,
+            'address_line2' => $request->address_line2,
+            'city' => $request->city,
+        ]);
+        
+        return back()->with('success', 'Address updated successfully!');
+    }
+
+    public function updatePreferences(Request $request)
+    {
+        $customer = auth()->user();
+        
+        $customer->update([
+            'email_orders' => $request->has('email_orders'),
+            'email_promotions' => $request->has('email_promotions'),
+            'email_newsletter' => $request->has('email_newsletter'),
+            'preferred_language' => $request->preferred_language ?? 'en',
+        ]);
+        
+        return back()->with('success', 'Preferences updated successfully');
     }
     
     public function removeFromWishlist($id)

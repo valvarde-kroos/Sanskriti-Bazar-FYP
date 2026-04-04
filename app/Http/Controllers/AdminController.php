@@ -7,14 +7,19 @@ use App\Models\User;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Order;
-use App\Models\Review;
 
 class AdminController extends Controller
 {
     // Vendors Management
     public function vendors()
     {
-        $vendors = User::where('role', 'vendor')->with('products')->get();
+        $vendors = User::where('role', 'vendor')
+            ->withCount('products')
+            ->with(['products' => function($query) {
+                $query->select('id', 'user_id', 'post_title', 'price', 'quantity', 'status', 'created_at');
+            }])
+            ->get();
+        
         return view('admin.vendors', compact('vendors'));
     }
 
@@ -115,94 +120,5 @@ class AdminController extends Controller
         $customer = User::findOrFail($id);
         $customer->delete();
         return back()->with('success', 'Customer deleted successfully.');
-    }
-
-    // Reviews Management
-    public function reviews()
-    {
-        $reviews = Review::with(['user', 'product'])
-            ->latest()
-            ->get();
-        
-        return view('admin.reviews', compact('reviews'));
-    }
-
-    public function updateReviewStatus(Request $request, $id)
-    {
-        $review = Review::findOrFail($id);
-        
-        $request->validate([
-            'status' => 'required|in:pending,approved,rejected',
-            'admin_response' => 'nullable|string|max:1000'
-        ]);
-
-        $review->update([
-            'status' => $request->status,
-            'admin_response' => $request->admin_response
-        ]);
-
-        return back()->with('success', 'Review status updated successfully.');
-    }
-
-    public function deleteReview($id)
-    {
-        $review = Review::findOrFail($id);
-        $review->delete();
-        
-        return back()->with('success', 'Review deleted successfully.');
-    }
-
-    public function storeReview(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'product_id' => 'required|exists:products,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|max:1000',
-        ]);
-
-        Review::create([
-            'user_id' => $request->user_id,
-            'product_id' => $request->product_id,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'status' => 'pending'
-        ]);
-
-        return back()->with('success', 'Review added successfully.');
-    }
-
-    public function editReview($id)
-    {
-        $review = Review::with(['user', 'product'])->findOrFail($id);
-        $users = User::where('role', 'customer')->get();
-        $products = Product::all();
-        
-        return response()->json([
-            'review' => $review,
-            'users' => $users,
-            'products' => $products
-        ]);
-    }
-
-    public function updateReview(Request $request, $id)
-    {
-        $review = Review::findOrFail($id);
-        
-        $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'comment' => 'required|string|max:1000',
-            'status' => 'required|in:pending,approved,rejected',
-            'admin_response' => 'nullable|string|max:1000'
-        ]);
-
-        $review->update([
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'status' => $request->status,
-            'admin_response' => $request->admin_response
-        ]);
-
-        return back()->with('success', 'Review updated successfully.');
     }
 }

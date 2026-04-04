@@ -3874,3 +3874,75 @@ footer a:hover {
         grid-template-columns: 1fr;
     }
 }
+/* ================= STOCK DISPLAY STYLES ================= */
+.stock-info {
+    font-size: 14px;
+    color: #666;
+    margin-left: 10px;
+    font-weight: 500;
+}
+
+.stock-status.out-of-stock {
+    color: #e74c3c;
+}
+
+.stock-status.out-of-stock svg {
+    color: #e74c3c;
+}
+
+.out-of-stock-message {
+    background: #fff5f5;
+    border: 2px solid #fed7d7;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.stock-warning {
+    color: #e74c3c;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.out-of-stock-message .btn-wishlist-detail {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.out-of-stock-message .btn-wishlist-detail:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+}
+
+.out-of-stock-message .btn-wishlist-detail.active {
+    background: #27ae60;
+}
+
+.out-of-stock-message .btn-wishlist-detail.active:hover {
+    background: #229954;
+}
+
+/* Disabled button styles */
+.quantity-controls button:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    background: #f5f5f5 !important;
+    color: #999 !important;
+}
+
+.quantity-controls button:disabled:hover {
+    background: #f5f5f5 !important;
+    transform: none !important;
+}

@@ -61,7 +61,7 @@
         <div class="stat-icon"><i class="fas fa-ban"></i></div>
     </div>
     <div class="stat-card revenue">
-        <div class="stat-number">{{ $vendors->sum(function($vendor) { return $vendor->products->count(); }) }}</div>
+        <div class="stat-number">{{ $vendors->sum('products_count') }}</div>
         <div class="stat-label">Total Products</div>
         <div class="stat-icon"><i class="fas fa-box"></i></div>
     </div>
@@ -888,6 +888,92 @@
         text-align: right;
     }
 
+    /* Products List Styles */
+    .products-list {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+    }
+
+    .product-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .product-item:last-child {
+        border-bottom: none;
+    }
+
+    .product-item:hover {
+        background: #f9fafb;
+    }
+
+    .product-info {
+        flex: 1;
+    }
+
+    .product-name {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-details {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .product-price {
+        color: #059669;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .product-stock {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .product-status {
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+
+    .product-status.active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .product-status.inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .product-date {
+        color: #9ca3af;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .no-products {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+
+    .no-products p {
+        margin: 0;
+        font-style: italic;
+    }
+
     .modal-actions {
         display: flex;
         gap: 0.75rem;
@@ -1089,6 +1175,34 @@
                         <span>${new Date(vendor.created_at).toLocaleDateString()}</span>
                     </div>
                 </div>
+                
+                ${vendor.products && vendor.products.length > 0 ? `
+                <div class="detail-section">
+                    <h4>Vendor Products</h4>
+                    <div class="products-list">
+                        ${vendor.products.map(product => `
+                            <div class="product-item">
+                                <div class="product-info">
+                                    <div class="product-name">${product.post_title}</div>
+                                    <div class="product-details">
+                                        <span class="product-price">Rs. ${parseFloat(product.price || 0).toLocaleString()}</span>
+                                        <span class="product-stock">Stock: ${product.quantity || 0}</span>
+                                        <span class="product-status ${product.status || 'active'}">${(product.status || 'active').charAt(0).toUpperCase() + (product.status || 'active').slice(1)}</span>
+                                    </div>
+                                </div>
+                                <div class="product-date">${new Date(product.created_at).toLocaleDateString()}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                ` : `
+                <div class="detail-section">
+                    <h4>Vendor Products</h4>
+                    <div class="no-products">
+                        <p>This vendor hasn't added any products yet.</p>
+                    </div>
+                </div>
+                `}
             </div>
             <div class="modal-actions">
                 <button class="btn btn-primary" onclick="editVendor(${id})">Edit Vendor</button>

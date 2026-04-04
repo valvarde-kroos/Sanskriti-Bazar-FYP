@@ -1,7 +1,7 @@
-<nav class="vendor-navbar">
+<nav class="customer-navbar">
     <div class="navbar-left">
         <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
-        <h1 class="navbar-title">Sanskriti Bazar Vendor Panel</h1>
+        <h1 class="navbar-title">Sanskriti Bazar Customer Panel</h1>
     </div>
 
     <div class="navbar-center">
@@ -11,13 +11,13 @@
     </div>
 
     <div class="navbar-right">
-        <div class="vendor-profile" onclick="toggleProfileDropdown()">
-            <span class="vendor-name">{{ Auth::user()->name ?? 'Vendor' }}</span>
+        <div class="customer-profile" onclick="toggleProfileDropdown()">
+            <span class="customer-name">{{ Auth::user()->name ?? 'Customer' }}</span>
             <span class="dropdown-arrow">▼</span>
             
             <div class="profile-dropdown" id="profileDropdown">
-                <a href="#" class="dropdown-item">Profile</a>
-                <a href="#" class="dropdown-item">Settings</a>
+                <a href="{{ route('customer.profile') }}" class="dropdown-item">Profile</a>
+                <a href="{{ route('customer.orders') }}" class="dropdown-item">My Orders</a>
                 <div class="dropdown-divider"></div>
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                     @csrf
@@ -29,7 +29,7 @@
 </nav>
 
 <style>
-    .vendor-navbar {
+    .customer-navbar {
         background: #fff;
         padding: 15px 30px;
         display: flex;
@@ -91,7 +91,7 @@
         gap: 20px;
     }
 
-    .vendor-profile {
+    .customer-profile {
         position: relative;
         display: flex;
         align-items: center;
@@ -103,12 +103,12 @@
         transition: all 0.3s;
     }
 
-    .vendor-profile:hover {
+    .customer-profile:hover {
         background: #f8f9fa;
         border-color: #3498db;
     }
 
-    .vendor-name {
+    .customer-name {
         font-size: 14px;
         font-weight: 600;
         color: #2c3e50;
@@ -153,6 +153,8 @@
 
     .dropdown-item:hover {
         background: #f8f9fa;
+        text-decoration: none;
+        color: #2c3e50;
     }
 
     .dropdown-divider {
@@ -162,12 +164,12 @@
     }
 
     .logout-btn {
-        color: #e74c3c;
+        color: #3498db;
         font-weight: 500;
     }
 
     @media (max-width: 768px) {
-        .vendor-navbar {
+        .customer-navbar {
             padding: 15px;
         }
 
@@ -192,7 +194,7 @@
     }
 
     window.addEventListener('click', function(e) {
-        if (!e.target.closest('.vendor-profile')) {
+        if (!e.target.closest('.customer-profile')) {
             const dropdown = document.getElementById('profileDropdown');
             if (dropdown) dropdown.classList.remove('show');
         }
@@ -200,7 +202,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const sidebar = document.getElementById('vendorSidebar');
+        const sidebar = document.getElementById('customerSidebar');
 
         if (mobileMenuBtn && sidebar) {
             mobileMenuBtn.addEventListener('click', function() {

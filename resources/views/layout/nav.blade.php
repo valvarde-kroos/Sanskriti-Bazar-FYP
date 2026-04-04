@@ -11,8 +11,7 @@
         <div class="navbar-menu" id="navbarMenu">
             <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">HOME</a>
             <a href="{{ route('shop.index') }}" class="nav-item {{ request()->routeIs('shop.*') ? 'active' : '' }}">SHOPS</a>
-            <a href="#" class="nav-item">CATEGORIES</a>
-            <a href="#" class="nav-item">VENDORS</a>
+            <a href="{{ route('about') }}" class="nav-item {{ request()->routeIs('about') ? 'active' : '' }}">ABOUT US</a>
             <a href="{{ route('contact') }}" class="nav-item {{ request()->routeIs('contact') ? 'active' : '' }}">CONTACT</a>
         </div>
 
@@ -148,5 +147,27 @@
                 }
             });
         }
+
+        // Load cart count on page load
+        @auth
+            @if(!auth()->user()->isAdmin())
+                loadCartCount();
+            @endif
+        @endauth
     });
+
+    // Load cart count function
+    function loadCartCount() {
+        fetch('/cart/count')
+            .then(response => response.json())
+            .then(data => {
+                const cartCountElements = document.querySelectorAll('.cart-count');
+                cartCountElements.forEach(element => {
+                    element.textContent = data.count || 0;
+                });
+            })
+            .catch(error => {
+                console.error('Error loading cart count:', error);
+            });
+    }
 </script>

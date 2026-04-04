@@ -22,7 +22,17 @@ class UserController extends Controller
         if(Auth::attempt($credentials)){
             $user = Auth::user();
             
-            // Redirect based on role
+            // Check if there's an intended URL (like cart page)
+            $intendedUrl = session('url.intended');
+            
+            if ($intendedUrl) {
+                // Clear the intended URL from session
+                session()->forget('url.intended');
+                // Redirect to the intended URL
+                return redirect($intendedUrl)->with('success', 'Welcome back! You have been successfully logged in.');
+            }
+            
+            // Default redirect based on role if no intended URL
             if ($user->isAdmin()) {
                 return redirect()->route('admin.dashboard');
             } elseif ($user->isVendor()) {

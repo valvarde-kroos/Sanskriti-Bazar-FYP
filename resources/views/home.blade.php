@@ -1,7 +1,6 @@
 @extends('layout.main')
 
 @section('hyasabicontentauncha')
-
 <!-- SUCCESS MESSAGE -->
 @if (session('success'))
 <div class="alert alert-success">
@@ -9,139 +8,69 @@
 </div>
 @endif
 
-<!-- HERO SLIDER SECTION -->
-<section class="hero-slider">
-    <div class="slider-container">
-        <!-- Slide 1 -->
-        <div class="slide active" id="slide1">
-            <div class="slide-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">Sale 20% Off</h1>
-                    <h2 class="hero-subtitle">On Nepali Cultural Products</h2>
-                    <p class="hero-description">Discover authentic handcrafted items from local Nepali artisans. Traditional instruments, handicrafts, and cultural treasures await you.</p>
-                    <a href="{{ route('shop.index') }}" class="shop-now-btn">Shop Now</a>
-                </div>
-                <div class="hero-image">
-                    <img src="{{ asset('assets/images/hero-model-1.jpg') }}" alt="Nepali Cultural Products" class="model-image">
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 2 -->
-        <div class="slide" id="slide2">
-            <div class="slide-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">New Arrivals</h1>
-                    <h2 class="hero-subtitle">Traditional Instruments</h2>
-                    <p class="hero-description">Explore our latest collection of authentic Nepali musical instruments crafted by master artisans from the Himalayas.</p>
-                    <a href="{{ route('shop.index') }}" class="shop-now-btn">Explore Now</a>
-                </div>
-                <div class="hero-image">
-                    <img src="{{ asset('assets/images/hero-model-2.jpg') }}" alt="Traditional Instruments" class="model-image">
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 3 -->
-        <div class="slide" id="slide3">
-            <div class="slide-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">Summer Collection</h1>
-                    <h2 class="hero-subtitle">Handmade Crafts</h2>
-                    <p class="hero-description">Beautiful handcrafted items perfect for summer. Support local vendors while adding authentic Nepali culture to your home.</p>
-                    <a href="{{ route('shop.index') }}" class="shop-now-btn">Shop Collection</a>
-                </div>
-                <div class="hero-image">
-                    <img src="{{ asset('assets/images/hero-model-3.jpg') }}" alt="Handmade Crafts" class="model-image">
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Slider Navigation Dots -->
-    <div class="slider-dots">
-        <span class="dot active" onclick="currentSlide(1)"></span>
-        <span class="dot" onclick="currentSlide(2)"></span>
-        <span class="dot" onclick="currentSlide(3)"></span>
-    </div>
-</section>
-
-<!-- CATEGORIES SECTION -->
-<section class="categories-section">
+<!-- HERO SECTION -->
+<section class="hero-section">
     <div class="container">
-        <h2 class="section-title">Musical Instruments</h2>
-        <div class="categories-grid">
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="{{ asset('assets/images/madal.jpg') }}" alt="Madal">
-                    <div class="category-overlay">
-                        <span class="view-category">View Category</span>
-                    </div>
-                </div>
-                <h3 class="category-name">Madal</h3>
+        <div class="hero-content">
+            <h1 class="hero-title">Where Every Note Tells a Nepali Story</h1>
+            <p class="hero-subtitle">
+                Mastery isn't always about talent. It's about practice. Consistent practice builds skill.<br>
+                Greatness will come.
+            </p>
+            
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Find your traditional instrument...">
+                <button class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="{{ asset('assets/images/sarangi.jpg') }}" alt="Sarangi">
-                    <div class="category-overlay">
-                        <span class="view-category">View Category</span>
-                    </div>
-                </div>
-                <h3 class="category-name">Sarangi</h3>
-            </div>
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="{{ asset('assets/images/bansuri.jpg') }}" alt="Bansuri">
-                    <div class="category-overlay">
-                        <span class="view-category">View Category</span>
-                    </div>
-                </div>
-                <h3 class="category-name">Bansuri</h3>
-            </div>
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="{{ asset('assets/images/damphu.jpg') }}" alt="Damphu">
-                    <div class="category-overlay">
-                        <span class="view-category">View Category</span>
-                    </div>
-                </div>
-                <h3 class="category-name">Damphu</h3>
-            </div>
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="{{ asset('assets/images/tungna.jpg') }}" alt="Tungna">
-                    <div class="category-overlay">
-                        <span class="view-category">View Category</span>
-                    </div>
-                </div>
-                <h3 class="category-name">Tungna</h3>
-            </div>
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="{{ asset('assets/images/dholak.jpg') }}" alt="Dholak">
-                    <div class="category-overlay">
-                        <span class="view-category">View Category</span>
-                    </div>
-                </div>
-                <h3 class="category-name">Dholak</h3>
-            </div>
-            <div class="category-card">
-                <div class="category-image">
-                    <img src="{{ asset('assets/images/panche-baja.jpg') }}" alt="Panche Baja">
-                    <div class="category-overlay">
-                        <span class="view-category">View Category</span>
-                    </div>
-                </div>
-                <h3 class="category-name">Panche Baja</h3>
+            
+            <!-- CTA Button -->
+            <div class="cta-section">
+                <a href="{{ route('shop.index') }}" class="explore-btn">
+                    Explore Now <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
     </div>
 </section>
 
-<!-- FEATURED PRODUCTS SECTION -->
-<section class="featured-products-section">
+<!-- FEATURES SECTION -->
+<section class="features-section">
     <div class="container">
-        <h2 class="section-title">Featured Products</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-music"></i>
+                </div>
+                <h3>Traditional Instruments</h3>
+                <p>Authentic Nepali musical instruments crafted by skilled artisans</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3>Cultural Heritage</h3>
+                <p>Preserving Nepal's rich musical traditions for future generations</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Support Artisans</h3>
+                <p>Supporting local craftsmen and their traditional skills</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRODUCTS SECTION -->
+<section class="products-section">
+    <div class="container">
+        <h2 class="section-title">Featured Instruments</h2>
         <div class="products-grid">
             @forelse($products ?? [] as $product)
             <div class="product-card">
@@ -149,221 +78,90 @@
                     @if($product->image)
                         <img src="{{ asset('uploads/' . $product->image) }}" alt="{{ $product->post_title }}">
                     @else
-                        <img src="{{ asset('assets/images/no-image.jpg') }}" alt="No Image">
+                        <div class="no-image">
+                            <i class="fas fa-music"></i>
+                            <span>{{ $product->post_title }}</span>
+                        </div>
                     @endif
-                    <div class="product-overlay">
-                        <button class="quick-view-btn">Quick View</button>
-                    </div>
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">{{ $product->post_title }}</h3>
-                    <p class="product-vendor">by {{ $product->user->name ?? 'Unknown Vendor' }}</p>
-                    <div class="product-price">Rs. {{ number_format($product->price ?? 0, 2) }}</div>
+                    <p class="product-price">Rs. {{ number_format($product->price ?? 0, 2) }}</p>
                     <div class="product-actions">
-                        <button class="add-to-cart-btn" onclick="addToCart({{ $product->id }})">Add to Cart</button>
-                        <a href="{{ route('shop.product', $product->id) }}" class="view-details-btn">View Details</a>
+                        <button class="add-to-cart-btn" onclick="addToCart({{ $product->id }})">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
                     </div>
                 </div>
             </div>
             @empty
-            <!-- Sample Products for Demo -->
+            <!-- Sample Products -->
             <div class="product-card">
                 <div class="product-image">
-                    <img src="{{ asset('assets/images/madal.jpg') }}" alt="Traditional Madal">
-                    <div class="product-overlay">
-                        <button class="quick-view-btn">Quick View</button>
+                    <div class="no-image">
+                        <i class="fas fa-drum"></i>
+                        <span>Traditional Madal</span>
                     </div>
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">Traditional Madal</h3>
-                    <p class="product-vendor">by Himalayan Music Store</p>
-                    <div class="product-price">Rs. 5,000.00</div>
+                    <p class="product-price">Rs. 5,000.00</p>
                     <div class="product-actions">
-                        <button class="add-to-cart-btn">Add to Cart</button>
-                        <a href="#" class="view-details-btn">View Details</a>
+                        <button class="add-to-cart-btn" onclick="loginRequired()">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
                     </div>
                 </div>
             </div>
+            
             <div class="product-card">
                 <div class="product-image">
-                    <img src="{{ asset('assets/images/sarangi.jpg') }}" alt="Nepali Sarangi">
-                    <div class="product-overlay">
-                        <button class="quick-view-btn">Quick View</button>
+                    <div class="no-image">
+                        <i class="fas fa-guitar"></i>
+                        <span>Nepali Sarangi</span>
                     </div>
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">Nepali Sarangi</h3>
-                    <p class="product-vendor">by Kathmandu Folk Instruments</p>
-                    <div class="product-price">Rs. 8,500.00</div>
+                    <p class="product-price">Rs. 8,500.00</p>
                     <div class="product-actions">
-                        <button class="add-to-cart-btn">Add to Cart</button>
-                        <a href="#" class="view-details-btn">View Details</a>
+                        <button class="add-to-cart-btn" onclick="loginRequired()">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="product-card">
+                <div class="product-image">
+                    <div class="no-image">
+                        <i class="fas fa-wind"></i>
+                        <span>Bamboo Bansuri</span>
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">Bamboo Bansuri</h3>
+                    <p class="product-price">Rs. 2,500.00</p>
+                    <div class="product-actions">
+                        <button class="add-to-cart-btn" onclick="loginRequired()">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
                     </div>
                 </div>
             </div>
             @endforelse
         </div>
-    </div>
-</section>
-
-<!-- TOP VENDORS SECTION -->
-<section class="top-vendors-section">
-    <div class="container">
-        <h2 class="section-title">Top Vendors</h2>
-        <div class="vendors-grid">
-            <div class="vendor-card">
-                <div class="vendor-logo">
-                    <img src="{{ asset('assets/images/vendor1.jpg') }}" alt="Himalayan Music Store">
-                </div>
-                <div class="vendor-info">
-                    <h3 class="vendor-name">Himalayan Music Store</h3>
-                    <p class="vendor-products">45 Products</p>
-                    <a href="#" class="visit-shop-btn">Visit Shop</a>
-                </div>
-            </div>
-            <div class="vendor-card">
-                <div class="vendor-logo">
-                    <img src="{{ asset('assets/images/vendor2.jpg') }}" alt="Kathmandu Folk Instruments">
-                </div>
-                <div class="vendor-info">
-                    <h3 class="vendor-name">Kathmandu Folk Instruments</h3>
-                    <p class="vendor-products">32 Products</p>
-                    <a href="#" class="visit-shop-btn">Visit Shop</a>
-                </div>
-            </div>
-            <div class="vendor-card">
-                <div class="vendor-logo">
-                    <img src="{{ asset('assets/images/vendor3.jpg') }}" alt="Gurung Handmade Instruments">
-                </div>
-                <div class="vendor-info">
-                    <h3 class="vendor-name">Gurung Handmade Instruments</h3>
-                    <p class="vendor-products">28 Products</p>
-                    <a href="#" class="visit-shop-btn">Visit Shop</a>
-                </div>
-            </div>
-            <div class="vendor-card">
-                <div class="vendor-logo">
-                    <img src="{{ asset('assets/images/vendor4.jpg') }}" alt="Newari Crafts">
-                </div>
-                <div class="vendor-info">
-                    <h3 class="vendor-name">Newari Crafts</h3>
-                    <p class="vendor-products">38 Products</p>
-                    <a href="#" class="visit-shop-btn">Visit Shop</a>
-                </div>
-            </div>
+        
+        <div class="view-all-section">
+            <a href="{{ route('shop.index') }}" class="view-all-btn">View All Instruments</a>
         </div>
     </div>
 </section>
-
-<!-- WHY CHOOSE US SECTION -->
-<section class="why-choose-us-section">
-    <div class="container">
-        <h2 class="section-title">Why Choose Sanskriti Bazar</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 12l2 2 4-4"></path>
-                        <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
-                        <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
-                        <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"></path>
-                        <path d="M12 21c0-1 1-3 3-3s3 2 3 3-1 3-3 3-3-2-3-3"></path>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Authentic Products</h3>
-                <p class="feature-description">100% genuine Nepali handicrafts and traditional items sourced directly from local artisans.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Support Local Vendors</h3>
-                <p class="feature-description">Directly support local Nepali vendors and artisans by purchasing their handcrafted products.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="1" y="3" width="15" height="13"></rect>
-                        <polygon points="16,3 19,7 21,7 21,13 16,13"></polygon>
-                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Fast Delivery</h3>
-                <p class="feature-description">Quick and reliable delivery across Nepal with secure packaging to protect your items.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                        <line x1="1" y1="10" x2="23" y2="10"></line>
-                    </svg>
-                </div>
-                <h3 class="feature-title">Secure Payment</h3>
-                <p class="feature-description">Safe and secure payment options with multiple payment methods for your convenience.</p>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- TESTIMONIALS SECTION -->
-<section class="testimonials-section">
-    <div class="container">
-        <h2 class="section-title">What Our Customers Say</h2>
-        <div class="testimonials-slider">
-            <div class="testimonial-card active">
-                <div class="testimonial-content">
-                    <p class="testimonial-text">"Amazing quality products! I bought a traditional Madal and it sounds incredible. The craftsmanship is outstanding and delivery was very fast."</p>
-                    <div class="testimonial-author">
-                        <img src="{{ asset('assets/images/customer1.jpg') }}" alt="Ram Sharma" class="author-image">
-                        <div class="author-info">
-                            <h4 class="author-name">Ram Sharma</h4>
-                            <p class="author-location">Kathmandu</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    <p class="testimonial-text">"Sanskriti Bazar is the best place to find authentic Nepali handicrafts. I've ordered multiple items and each one exceeded my expectations."</p>
-                    <div class="testimonial-author">
-                        <img src="{{ asset('assets/images/customer2.jpg') }}" alt="Sita Rai" class="author-image">
-                        <div class="author-info">
-                            <h4 class="author-name">Sita Rai</h4>
-                            <p class="author-location">Pokhara</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="testimonial-card">
-                <div class="testimonial-content">
-                    <p class="testimonial-text">"Great platform to support local vendors. The variety of products is impressive and the quality is always top-notch."</p>
-                    <div class="testimonial-author">
-                        <img src="{{ asset('assets/images/customer3.jpg') }}" alt="Hari Gurung" class="author-image">
-                        <div class="author-info">
-                            <h4 class="author-name">Hari Gurung</h4>
-                            <p class="author-location">Chitwan</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="testimonial-dots">
-            <span class="dot active" onclick="currentSlide(1)"></span>
-            <span class="dot" onclick="currentSlide(2)"></span>
-            <span class="dot" onclick="currentSlide(3)"></span>
-        </div>
-    </div>
-</section>
-
 @endsection
+
 @section('styles')
 <style>
-    /* GLOBAL STYLES */
+    /* SEPARATE SECTIONS HOMEPAGE STYLES */
     * {
         margin: 0;
         padding: 0;
@@ -371,7 +169,7 @@
     }
 
     body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Arial', sans-serif;
         line-height: 1.6;
         color: #333;
     }
@@ -382,14 +180,7 @@
         padding: 0 20px;
     }
 
-    .section-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        text-align: center;
-        margin-bottom: 3rem;
-        color: #2c3e50;
-    }
-
+    /* Alert Styles */
     .alert {
         padding: 15px 20px;
         margin: 20px auto;
@@ -404,219 +195,199 @@
         border: 1px solid #6ee7b7;
     }
 
-    /* HERO SLIDER SECTION */
-    .hero-slider {
-        position: relative;
-        height: 600px;
-        overflow: hidden;
-        background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
-    }
-
-    .slider-container {
-        position: relative;
-        height: 100%;
-    }
-
-    .slide {
-        display: none;
-        height: 100%;
-        align-items: center;
-        padding: 0 50px;
-    }
-
-    .slide.active {
+    /* HERO SECTION */
+    .hero-section {
+        background: #f5f1eb;
+        padding: 120px 0;
+        min-height: 70vh;
         display: flex;
-    }
-    .slide-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 60px;
         align-items: center;
-        max-width: 1200px;
-        margin: 0 auto;
-        width: 100%;
+        text-align: center;
     }
 
-    .hero-text {
-        color: white;
+    .hero-content {
+        max-width: 900px;
+        margin: 0 auto;
     }
 
     .hero-title {
         font-size: 3.5rem;
         font-weight: 800;
+        margin-bottom: 2rem;
         line-height: 1.2;
-        margin-bottom: 1rem;
+        color: #2d3748;
     }
 
     .hero-subtitle {
-        font-size: 2rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        opacity: 0.9;
+        font-size: 1.2rem;
+        margin-bottom: 3rem;
+        color: #718096;
+        line-height: 1.8;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
-    .hero-description {
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-        opacity: 0.8;
-        line-height: 1.6;
-    }
-
-    .shop-now-btn {
-        display: inline-block;
-        background: white;
-        color: #ff4757;
-        padding: 15px 40px;
-        border-radius: 50px;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        text-transform: uppercase;
-    }
-
-    .shop-now-btn:hover {
-        background: #f8f9fa;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-image {
-        text-align: center;
-    }
-
-    .model-image {
-        width: 100%;
-        max-width: 500px;
-        height: auto;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .slider-dots {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
+    /* SEARCH SECTION */
+    .search-container {
         display: flex;
-        gap: 10px;
+        max-width: 600px;
+        margin: 0 auto 2.5rem;
+        background: white;
+        border-radius: 50px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
     }
 
-    .dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.5);
+    .search-input {
+        flex: 1;
+        padding: 20px 30px;
+        border: none;
+        outline: none;
+        font-size: 1.1rem;
+        background: transparent;
+    }
+
+    .search-input::placeholder {
+        color: #a0aec0;
+    }
+
+    .search-btn {
+        padding: 20px 30px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        border: none;
+        color: white;
         cursor: pointer;
         transition: all 0.3s ease;
+        font-size: 1.1rem;
     }
 
-    .dot.active, .dot:hover {
-        background: white;
+    .search-btn:hover {
+        background: linear-gradient(135deg, #ff5252 0%, #e53e3e 100%);
     }
-    /* CATEGORIES SECTION */
-    .categories-section {
+
+    /* CTA SECTION */
+    .cta-section {
+        margin-top: 2rem;
+    }
+
+    .explore-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 40px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+    }
+
+    .explore-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        background: linear-gradient(135deg, #ff5252 0%, #e53e3e 100%);
+    }
+
+    /* FEATURES SECTION */
+    .features-section {
+        background: white;
         padding: 80px 0;
-        background: #f8f9fa;
     }
 
-    .categories-grid {
+    .features-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 30px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        max-width: 1000px;
+        margin: 0 auto;
     }
 
-    .category-card {
-        background: white;
+    .feature-card {
+        text-align: center;
+        padding: 40px 30px;
         border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-    }
-
-    .category-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .category-image {
-        height: 200px;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .category-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
         transition: transform 0.3s ease;
+        background: #f8f9fa;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     }
 
-    .category-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 71, 87, 0.8);
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 25px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .category-card:hover .category-overlay {
-        opacity: 1;
-    }
-
-    .category-card:hover .category-image img {
-        transform: scale(1.1);
-    }
-
-    .view-category {
         color: white;
-        font-weight: 600;
-        font-size: 1.1rem;
+        font-size: 2rem;
     }
 
-    .category-name {
-        font-size: 1.25rem;
+    .feature-card h3 {
+        font-size: 1.5rem;
         font-weight: 600;
-        padding: 20px;
-        color: #2c3e50;
-        text-align: center;
+        margin-bottom: 15px;
+        color: #2d3748;
     }
-    /* FEATURED PRODUCTS SECTION */
-    .featured-products-section {
+
+    .feature-card p {
+        color: #718096;
+        line-height: 1.6;
+    }
+
+    /* PRODUCTS SECTION */
+    .products-section {
+        background: #f8f9fa;
         padding: 80px 0;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 3rem;
+        color: #2d3748;
     }
 
     .products-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 30px;
+        margin-bottom: 50px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .product-card {
         background: white;
-        border-radius: 15px;
+        border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
     }
 
     .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
     }
 
     .product-image {
-        position: relative;
-        height: 250px;
+        height: 220px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
     }
 
@@ -624,413 +395,402 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        transition: transform 0.3s ease;
     }
 
-    .product-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
+    .no-image {
+        text-align: center;
+        color: #9ca3af;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        gap: 12px;
     }
 
-    .product-card:hover .product-overlay {
-        opacity: 1;
+    .no-image i {
+        font-size: 3.5rem;
+        color: #ff6b6b;
     }
 
-    .quick-view-btn {
-        background: white;
-        color: #333;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 25px;
+    .no-image span {
         font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .quick-view-btn:hover {
-        background: #ff4757;
-        color: white;
+        font-size: 1.2rem;
+        color: #2d3748;
     }
 
     .product-info {
-        padding: 20px;
+        padding: 30px;
     }
 
     .product-name {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
         font-weight: 600;
-        margin-bottom: 5px;
-        color: #2c3e50;
-    }
-
-    .product-vendor {
-        font-size: 0.9rem;
-        color: #7f8c8d;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        color: #2d3748;
     }
 
     .product-price {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        color: #ff4757;
-        margin-bottom: 15px;
-    }
-    .product-actions {
-        display: flex;
-        gap: 10px;
+        color: #ff6b6b;
+        margin-bottom: 25px;
     }
 
-    .add-to-cart-btn, .view-details-btn {
-        flex: 1;
-        padding: 10px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
+    .product-actions {
         text-align: center;
-        text-decoration: none;
-        display: block;
     }
 
     .add-to-cart-btn {
-        background: #ff4757;
-        color: white;
-    }
-
-    .add-to-cart-btn:hover {
-        background: #ff3742;
-    }
-
-    .view-details-btn {
-        background: #f8f9fa;
-        color: #333;
-        border: 1px solid #ddd;
-    }
-
-    .view-details-btn:hover {
-        background: #e9ecef;
-    }
-
-    /* TOP VENDORS SECTION */
-    .top-vendors-section {
-        padding: 80px 0;
-        background: #f8f9fa;
-    }
-
-    .vendors-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 30px;
-    }
-
-    .vendor-card {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        text-align: center;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-    }
-
-    .vendor-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .vendor-logo {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 20px;
-        border-radius: 50%;
-        overflow: hidden;
-        border: 3px solid #ff4757;
-    }
-
-    .vendor-logo img {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .vendor-name {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 10px;
-        color: #2c3e50;
-    }
-    .vendor-products {
-        color: #7f8c8d;
-        margin-bottom: 20px;
-    }
-
-    .visit-shop-btn {
-        background: #ff4757;
+        padding: 15px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
         color: white;
-        padding: 10px 25px;
-        border-radius: 25px;
-        text-decoration: none;
+        border: none;
+        border-radius: 12px;
         font-weight: 600;
+        cursor: pointer;
         transition: all 0.3s ease;
-        display: inline-block;
-    }
-
-    .visit-shop-btn:hover {
-        background: #ff3742;
-        transform: translateY(-2px);
-    }
-
-    /* WHY CHOOSE US SECTION */
-    .why-choose-us-section {
-        padding: 80px 0;
-    }
-
-    .features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 40px;
-    }
-
-    .feature-card {
-        text-align: center;
-        padding: 30px 20px;
-    }
-
-    .feature-icon {
-        width: 80px;
-        height: 80px;
-        margin: 0 auto 20px;
-        background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
-        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
+        gap: 10px;
+        font-size: 1rem;
     }
 
-    .feature-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #2c3e50;
+    .add-to-cart-btn:hover {
+        background: linear-gradient(135deg, #ff5252 0%, #e53e3e 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
     }
 
-    .feature-description {
-        color: #7f8c8d;
-        line-height: 1.6;
-    }
-
-    /* TESTIMONIALS SECTION */
-    .testimonials-section {
-        padding: 80px 0;
-        background: #f8f9fa;
-    }
-
-    .testimonials-slider {
-        max-width: 800px;
-        margin: 0 auto;
-        position: relative;
-    }
-
-    .testimonial-card {
-        display: none;
-        background: white;
-        border-radius: 15px;
-        padding: 40px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    }
-
-    .testimonial-card.active {
-        display: block;
-    }
-    .testimonial-text {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #2c3e50;
-        margin-bottom: 30px;
-        font-style: italic;
-    }
-
-    .testimonial-author {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-    }
-
-    .author-image {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .author-name {
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 5px;
-    }
-
-    .author-location {
-        color: #7f8c8d;
-        font-size: 0.9rem;
-    }
-
-    .testimonial-dots {
+    .view-all-section {
         text-align: center;
-        margin-top: 30px;
+        margin-top: 50px;
     }
 
-    .testimonial-dots .dot {
-        height: 12px;
-        width: 12px;
-        margin: 0 5px;
-        background-color: #bbb;
-        border-radius: 50%;
+    .view-all-btn {
         display: inline-block;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
+        padding: 18px 45px;
+        background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
     }
 
-    .testimonial-dots .dot.active, .testimonial-dots .dot:hover {
-        background-color: #ff4757;
+    .view-all-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(45, 55, 72, 0.3);
     }
 
     /* RESPONSIVE DESIGN */
-    @media (max-width: 768px) {
-        .slide-content {
-            grid-template-columns: 1fr;
-            gap: 40px;
-            text-align: center;
+    @media (max-width: 1200px) {
+        .container {
+            padding: 0 30px;
         }
+        
+        .products-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .features-grid {
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+    }
 
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 80px 0;
+        }
+        
         .hero-title {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
+            margin-bottom: 1.5rem;
         }
 
         .hero-subtitle {
-            font-size: 1.5rem;
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .search-container {
+            max-width: 95%;
+            margin: 0 auto 2rem;
+        }
+        
+        .search-input {
+            padding: 18px 25px;
+            font-size: 1rem;
+        }
+        
+        .search-btn {
+            padding: 18px 25px;
+            font-size: 1rem;
+        }
+        
+        .explore-btn {
+            padding: 18px 35px;
+            font-size: 1rem;
+        }
+
+        .features-section {
+            padding: 60px 0;
+        }
+
+        .products-section {
+            padding: 60px 0;
         }
 
         .section-title {
-            font-size: 2rem;
+            font-size: 2.2rem;
+            margin-bottom: 2.5rem;
         }
 
-        .categories-grid,
-        .products-grid,
-        .vendors-grid,
         .features-grid {
             grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        .feature-card {
+            padding: 35px 25px;
         }
 
-        .product-actions {
-            flex-direction: column;
+        .products-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
         }
-
-        .testimonial-card {
-            padding: 30px 20px;
+        
+        .product-card {
+            border-radius: 15px;
+        }
+        
+        .product-image {
+            height: 200px;
+        }
+        
+        .product-info {
+            padding: 25px;
+        }
+        
+        .product-name {
+            font-size: 1.2rem;
+        }
+        
+        .product-price {
+            font-size: 1.3rem;
+        }
+        
+        .add-to-cart-btn {
+            padding: 12px;
+            font-size: 0.95rem;
         }
     }
 
     @media (max-width: 480px) {
+        .hero-section {
+            padding: 60px 0;
+        }
+        
         .hero-title {
-            font-size: 2rem;
+            font-size: 2.2rem;
+            line-height: 1.3;
         }
 
         .hero-subtitle {
-            font-size: 1.25rem;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .hero-content {
+            max-width: 100%;
+        }
+
+        .search-container {
+            flex-direction: column;
+            border-radius: 15px;
+            max-width: 100%;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-input {
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .search-btn {
+            padding: 15px 20px;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .explore-btn {
+            padding: 15px 30px;
+            font-size: 0.95rem;
+        }
+
+        .features-section {
+            padding: 50px 0;
+        }
+
+        .products-section {
+            padding: 50px 0;
         }
 
         .section-title {
-            font-size: 1.75rem;
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-card {
+            padding: 30px 20px;
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            font-size: 1.8rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.3rem;
+        }
+
+        .products-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .product-image {
+            height: 180px;
+        }
+        
+        .product-info {
+            padding: 20px;
+        }
+        
+        .no-image i {
+            font-size: 3rem;
+        }
+        
+        .no-image span {
+            font-size: 1.1rem;
+        }
+        
+        .view-all-btn {
+            padding: 15px 35px;
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 360px) {
+        .hero-title {
+            font-size: 1.9rem;
+        }
+        
+        .section-title {
+            font-size: 1.6rem;
+        }
+        
+        .container {
+            padding: 0 15px;
         }
     }
 </style>
 @endsection
+
 @section('scripts')
 <script>
-    let slideIndex = 1;
-    let testimonialIndex = 1;
-
-    // Hero Slider Functions
-    function currentSlide(n) {
-        showSlide(slideIndex = n);
-    }
-
-    function showSlide(n) {
-        let slides = document.getElementsByClassName("slide");
-        let dots = document.getElementsByClassName("dot");
-        
-        if (n > slides.length) { slideIndex = 1 }
-        if (n < 1) { slideIndex = slides.length }
-        
-        for (let i = 0; i < slides.length; i++) {
-            slides[i].classList.remove("active");
-        }
-        
-        for (let i = 0; i < dots.length; i++) {
-            dots[i].classList.remove("active");
-        }
-        
-        slides[slideIndex - 1].classList.add("active");
-        dots[slideIndex - 1].classList.add("active");
-    }
-
-    // Auto slide hero
-    setInterval(function() {
-        slideIndex++;
-        if (slideIndex > 3) slideIndex = 1;
-        showSlide(slideIndex);
-    }, 5000);
-
-    // Testimonial Functions
-    function currentTestimonial(n) {
-        showTestimonial(testimonialIndex = n);
-    }
-
-    function showTestimonial(n) {
-        let testimonials = document.getElementsByClassName("testimonial-card");
-        let testimonialDots = document.querySelectorAll(".testimonial-dots .dot");
-        
-        if (n > testimonials.length) { testimonialIndex = 1 }
-        if (n < 1) { testimonialIndex = testimonials.length }
-        
-        for (let i = 0; i < testimonials.length; i++) {
-            testimonials[i].classList.remove("active");
-        }
-        
-        for (let i = 0; i < testimonialDots.length; i++) {
-            testimonialDots[i].classList.remove("active");
-        }
-        
-        testimonials[testimonialIndex - 1].classList.add("active");
-        testimonialDots[testimonialIndex - 1].classList.add("active");
-    }
-
-    // Auto slide testimonials
-    setInterval(function() {
-        testimonialIndex++;
-        if (testimonialIndex > 3) testimonialIndex = 1;
-        showTestimonial(testimonialIndex);
-    }, 6000);
-
     // Add to cart function
     function addToCart(productId) {
-        alert('Product added to cart!');
+        // Check if user is authenticated
+        @auth
+            // Make AJAX request to add product to cart
+            fetch(`/cart/add/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    quantity: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Product added to cart successfully!');
+                    updateCartCount();
+                } else {
+                    alert(data.message || 'Error adding product to cart');
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error adding product to cart. Please try again.');
+            });
+        @else
+            // Store the intended action and redirect to login
+            sessionStorage.setItem('intendedAction', 'addToCart');
+            sessionStorage.setItem('productId', productId);
+            alert('Please login to add products to cart.');
+            window.location.href = '{{ route("login") }}';
+        @endauth
     }
 
-    // Initialize sliders when page loads
+    // Login required function for demo products
+    function loginRequired() {
+        alert('Please login to add products to cart.');
+        window.location.href = '{{ route("login") }}';
+    }
+
+    // Update cart count function
+    function updateCartCount() {
+        @auth
+            fetch('/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    const cartCountElements = document.querySelectorAll('.cart-count');
+                    cartCountElements.forEach(element => {
+                        element.textContent = data.count || 0;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error updating cart count:', error);
+                });
+        @endauth
+    }
+
+    // Search functionality
     document.addEventListener('DOMContentLoaded', function() {
-        showSlide(1);
-        showTestimonial(1);
+        const searchInput = document.querySelector('.search-input');
+        const searchBtn = document.querySelector('.search-btn');
+        
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (query) {
+                window.location.href = `{{ route('shop.index') }}?search=${encodeURIComponent(query)}`;
+            }
+        }
+        
+        searchBtn.addEventListener('click', performSearch);
+        
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Load cart count on page load
+        @auth
+            @if(!auth()->user()->isAdmin())
+                updateCartCount();
+            @endif
+        @endauth
     });
 </script>
 @endsection

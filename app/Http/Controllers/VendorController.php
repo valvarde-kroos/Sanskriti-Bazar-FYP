@@ -119,14 +119,38 @@ class VendorController extends Controller
         }
 
         $request->validate([
-            'status' => 'required|in:pending,processing,shipped,delivered,cancelled'
+            'status' => 'required|in:pending,accepted,processing,delivered,cancelled'
         ]);
+
+        // Additional validation for accepting orders (moving to accepted)
+        if ($request->status === 'accepted' && $order->status === 'pending') {
+            if ($order->product->quantity < $order->quantity) {
+                return redirect()->route('vendor.orders')->with('error', 'Cannot accept order: Insufficient stock available!');
+            }
+            
+            // Reduce stock when accepting the order
+            $order->product->decrement('quantity', $order->quantity);
+        }
+
+        // If cancelling an accepted order, restore stock
+        if ($request->status === 'cancelled' && in_array($order->status, ['accepted', 'processing'])) {
+            $order->product->increment('quantity', $order->quantity);
+        }
 
         $order->update([
             'status' => $request->status
         ]);
 
-        return redirect()->route('vendor.orders')->with('success', 'Order status updated successfully!');
+        $statusMessages = [
+            'accepted' => 'Order accepted successfully!',
+            'processing' => 'Order is now being processed!',
+            'delivered' => 'Order marked as delivered!',
+            'cancelled' => 'Order has been rejected.',
+        ];
+
+        $message = $statusMessages[$request->status] ?? 'Order status updated successfully!';
+
+        return redirect()->route('vendor.orders')->with('success', $message);
     }
 
     public function adminVendor()

@@ -21,7 +21,19 @@ class Order extends Model
         'quantity',
         'total_price',
         'status',
+        'shipping_name',
+        'shipping_address',
+        'shipping_phone',
     ];
+
+    /**
+     * The possible status values for orders
+     */
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACCEPTED = 'accepted';
+    const STATUS_PROCESSING = 'processing';
+    const STATUS_COMPLETED = 'completed';
+    const STATUS_CANCELLED = 'cancelled';
 
     /**
      * An order belongs to a user
