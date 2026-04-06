@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\Like;
 use App\Models\Review;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class CustomerController extends Controller
 {
@@ -88,6 +89,30 @@ class CustomerController extends Controller
             ->unique('id');
         
         return view('customer.reviews', compact('myReviews', 'orderedProducts'));
+    }
+
+    public function wishlist()
+    {
+        $customer = auth()->user();
+        
+        // Get customer's wishlist (liked products)
+        $wishlistItems = Like::where('user_id', $customer->id)
+            ->with(['product.category', 'product.user'])
+            ->latest()
+            ->get();
+        
+        return view('customer.wishlist', compact('wishlistItems'));
+    }
+
+    public function wishlistCount()
+    {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return response()->json(['count' => 0]);
+        }
+
+        $count = Like::where('user_id', Auth::id())->count();
+        return response()->json(['count' => $count]);
     }
     
     public function updateProfile(Request $request)
@@ -201,5 +226,52 @@ class CustomerController extends Controller
         ]);
         
         return back()->with('success', 'Review submitted successfully');
+    }
+    
+    public function cancelOrder($id)
+    {
+        $order = Order::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->first();
+        
+        if (!$order) {
+            return response()->json(['success' => false, 'message' => 'Order not found'], 404);
+        }
+        
+        // Only allow cancellation of pending orders
+        if ($order->status !== 'pending') {
+            return response()->json(['success' => false, 'message' => 'Only pending orders can be cancelled'], 400);
+        }
+        
+        $order->update(['status' => 'cancelled']);
+        
+        return response()->json(['success' => true, 'message' => 'Order cancelled successfully']);
+    }
+    
+    public function viewOrder($id)
+    {
+        $order = Order::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->with('product.user')
+            ->first();
+        
+        if (!$order) {
+            return response()->json(['success' => false, 'message' => 'Order not found'], 404);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'order' => [
+                'id' => $order->id,
+                'order_number' => 'ORD-' . str_pad($order->id, 3, '0', STR_PAD_LEFT),
+                'product_name' => $order->product->post_title,
+                'quantity' => $order->quantity,
+                'total_price' => $order->total_price,
+                'status' => $order->status,
+                'created_at' => $order->created_at->format('M d, Y h:i A'),
+                'vendor_name' => $order->product->user->name ?? 'N/A',
+                'shipping_address' => $order->shipping_address ?? 'Default address'
+            ]
+        ]);
     }
 }

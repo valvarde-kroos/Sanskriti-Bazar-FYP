@@ -132,16 +132,21 @@
                         </td>
                         <td>{{ $vendor->created_at->format('M d, Y') }}</td>
                         <td>
-                            <div class="action-buttons">
-                                <button class="btn-action view" onclick="viewVendor({{ $vendor->id }})" title="View Details">
-                                    <i class="fas fa-eye"></i>
+                            <div class="dropdown-container">
+                                <button class="dropdown-toggle" onclick="toggleDropdown({{ $vendor->id }})">
+                                    <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <button class="btn-action edit" onclick="editVendor({{ $vendor->id }})" title="Edit Vendor">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn-action delete" onclick="deleteVendor({{ $vendor->id }})" title="Delete Vendor">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="dropdown-menu" id="dropdown-{{ $vendor->id }}">
+                                    <button class="dropdown-item" onclick="viewVendor({{ $vendor->id }})">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="dropdown-item" onclick="editVendor({{ $vendor->id }})">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="dropdown-item danger" onclick="deleteVendor({{ $vendor->id }})">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -616,53 +621,78 @@
         color: #991b1b;
     }
 
-    /* Action Buttons */
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
+    /* Dropdown Actions */
+    .dropdown-container {
+        position: relative;
+        display: inline-block;
     }
 
-    .btn-action {
-        width: 32px;
-        height: 32px;
-        border: none;
+    .dropdown-toggle {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
         border-radius: 6px;
+        padding: 8px 10px;
         cursor: pointer;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+
+    .dropdown-toggle:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 120px;
+        z-index: 1000;
+        display: none;
+        padding: 4px 0;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
         display: flex;
         align-items: center;
-        justify-content: center;
-        font-size: 0.875rem;
-        transition: all 0.2s ease;
+        gap: 8px;
+        width: 100%;
+        padding: 8px 12px;
+        background: none;
+        border: none;
+        color: #495057;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: left;
     }
 
-    .btn-action.view {
-        background: rgba(59, 130, 246, 0.1);
-        color: #3b82f6;
+    .dropdown-item:hover {
+        background: #f8f9fa;
+        color: #667eea;
     }
 
-    .btn-action.view:hover {
-        background: #3b82f6;
-        color: white;
+    .dropdown-item.danger {
+        color: #dc3545;
     }
 
-    .btn-action.edit {
-        background: rgba(245, 158, 11, 0.1);
-        color: #f59e0b;
+    .dropdown-item.danger:hover {
+        background: #f8d7da;
+        color: #721c24;
     }
 
-    .btn-action.edit:hover {
-        background: #f59e0b;
-        color: white;
-    }
-
-    .btn-action.delete {
-        background: rgba(239, 68, 68, 0.1);
-        color: #ef4444;
-    }
-
-    .btn-action.delete:hover {
-        background: #ef4444;
-        color: white;
+    .dropdown-item i {
+        width: 14px;
+        text-align: center;
     }
 
     /* Modal Styles */
@@ -1053,6 +1083,29 @@
 @endsection
 @section('scripts')
 <script>
+    // Dropdown functionality
+    function toggleDropdown(vendorId) {
+        // Close all other dropdowns
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            if (menu.id !== `dropdown-${vendorId}`) {
+                menu.classList.remove('show');
+            }
+        });
+        
+        // Toggle current dropdown
+        const dropdown = document.getElementById(`dropdown-${vendorId}`);
+        dropdown.classList.toggle('show');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown-container')) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        }
+    });
+
     // Vendors data from Laravel
     const vendors = @json($vendors);
     let currentVendorId = null;

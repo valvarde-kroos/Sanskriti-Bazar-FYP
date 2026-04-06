@@ -38,7 +38,7 @@ class UserController extends Controller
             } elseif ($user->isVendor()) {
                 return redirect()->route('vendor.dashboard');
             } else {
-                return redirect()->route('customer.dashboard'); // Customer goes to dashboard
+                return redirect()->route('home')->with('success', 'Welcome back! You have been successfully logged in.'); // Customer goes to home page
             }
         }
 
@@ -78,7 +78,7 @@ class UserController extends Controller
         } elseif ($user->isVendor()) {
             return redirect()->route('vendor.dashboard');
         } else {
-            return redirect()->route('customer.dashboard');
+            return redirect()->route('home')->with('success', 'Welcome to Sanskriti Bazar! Your account has been created successfully.');
         }
     }
 

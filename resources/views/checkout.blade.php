@@ -66,6 +66,18 @@
                                 @enderror
                             </div>
 
+                            <div class="form-group">
+                                <label for="payment_method">Payment Method *</label>
+                                <select id="payment_method" name="payment_method" required onchange="togglePaymentInfo()">
+                                    <option value="">Select Payment Method</option>
+                                    <option value="cash_on_delivery" {{ old('payment_method') == 'cash_on_delivery' ? 'selected' : '' }}>Cash on Delivery</option>
+                                    <option value="esewa" {{ old('payment_method') == 'esewa' ? 'selected' : '' }}>eSewa</option>
+                                </select>
+                                @error('payment_method')
+                                    <span class="error-message">{{ $message }}</span>
+                                @enderror
+                            </div>
+
                             <div class="form-actions">
                                 <a href="{{ route('cart') }}" class="btn-back">
                                     <i class="fas fa-arrow-left"></i>
@@ -124,12 +136,12 @@
                             </div>
                         </div>
 
-                        <div class="payment-info">
-                            <div class="payment-method">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <span>Cash on Delivery</span>
+                        <div class="payment-info" id="paymentInfo" style="display: none;">
+                            <div class="payment-method" id="paymentMethodDisplay">
+                                <i class="fas fa-money-bill-wave" id="paymentIcon"></i>
+                                <span id="paymentText">Select a payment method</span>
                             </div>
-                            <p class="payment-note">Pay when your order is delivered to your doorstep</p>
+                            <p class="payment-note" id="paymentNote">Choose your preferred payment option above</p>
                         </div>
                     </div>
                 </div>
@@ -154,7 +166,7 @@
 
 /* Page Header */
 .page-header {
-    background: linear-gradient(135deg, #ff4757 0%, #ff3742 100%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 60px 0;
     text-align: center;
@@ -230,7 +242,8 @@
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
     width: 100%;
     padding: 15px;
     border: 2px solid #e5e7eb;
@@ -241,11 +254,21 @@
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
     outline: none;
-    border-color: #ff4757;
+    border-color: #667eea;
     background: white;
-    box-shadow: 0 0 0 3px rgba(255, 71, 87, 0.1);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="%23667eea" d="M6 9L1 4h10z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 45px;
 }
 
 .form-group textarea {
@@ -293,7 +316,7 @@
 .btn-place-order {
     flex: 2;
     padding: 15px 20px;
-    background: #ff4757;
+    background: #667eea;
     color: white;
     border: none;
     border-radius: 8px;
@@ -310,9 +333,9 @@
 }
 
 .btn-place-order:hover {
-    background: #ff3742;
+    background: #764ba2;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 71, 87, 0.3);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
 }
 
 /* Order Summary Section */
@@ -406,7 +429,7 @@
 
 .price {
     font-weight: 600;
-    color: #ff4757;
+    color: #667eea;
     font-size: 0.95rem;
 }
 
@@ -453,12 +476,12 @@
 .final-total .total-value {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #ff4757;
+    color: #667eea;
 }
 
 .payment-info {
-    background: #f0f9ff;
-    border: 1px solid #bae6fd;
+    background: #f0f4ff;
+    border: 1px solid #c7d2fe;
     border-radius: 8px;
     padding: 20px;
     text-align: center;
@@ -470,7 +493,7 @@
     justify-content: center;
     gap: 10px;
     font-weight: 600;
-    color: #0369a1;
+    color: #4338ca;
     margin-bottom: 8px;
 }
 
@@ -479,7 +502,7 @@
 }
 
 .payment-note {
-    color: #0369a1;
+    color: #4338ca;
     font-size: 0.9rem;
     margin: 0;
 }
@@ -515,4 +538,39 @@
     }
 }
 </style>
+
+<script>
+function togglePaymentInfo() {
+    const paymentMethod = document.getElementById('payment_method').value;
+    const paymentInfo = document.getElementById('paymentInfo');
+    const paymentIcon = document.getElementById('paymentIcon');
+    const paymentText = document.getElementById('paymentText');
+    const paymentNote = document.getElementById('paymentNote');
+    
+    if (paymentMethod) {
+        paymentInfo.style.display = 'block';
+        
+        if (paymentMethod === 'cash_on_delivery') {
+            paymentIcon.className = 'fas fa-money-bill-wave';
+            paymentText.textContent = 'Cash on Delivery';
+            paymentNote.textContent = 'Pay when your order is delivered to your doorstep';
+            paymentInfo.style.background = '#f0f4ff';
+            paymentInfo.style.borderColor = '#c7d2fe';
+        } else if (paymentMethod === 'esewa') {
+            paymentIcon.className = 'fas fa-mobile-alt';
+            paymentText.textContent = 'eSewa Digital Payment';
+            paymentNote.textContent = 'Pay securely using your eSewa wallet';
+            paymentInfo.style.background = '#f0fdf4';
+            paymentInfo.style.borderColor = '#bbf7d0';
+        }
+    } else {
+        paymentInfo.style.display = 'none';
+    }
+}
+
+// Initialize payment info on page load if payment method is already selected
+document.addEventListener('DOMContentLoaded', function() {
+    togglePaymentInfo();
+});
+</script>
 @endsection

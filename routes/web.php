@@ -12,7 +12,6 @@ use App\Http\Controllers\OrderController;
 // Home & Contact
 // ----------------------
 Route::get('/', [ProductController::class, 'index'])->name('home');
-Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 
 // Shop Routes (Public)
@@ -44,9 +43,7 @@ Route::middleware('auth')->group(function () {
 
     // Admin Dashboard
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('admin.dashboard');
+        Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
         Route::get('/admin/vendors', [App\Http\Controllers\AdminController::class, 'vendors'])->name('admin.vendors');
         Route::post('/admin/vendor/store', [App\Http\Controllers\AdminController::class, 'storeVendor'])->name('admin.vendor.store');
@@ -92,12 +89,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/customer/orders', [App\Http\Controllers\CustomerController::class, 'orders'])->name('customer.orders');
         Route::get('/customer/profile', [App\Http\Controllers\CustomerController::class, 'profile'])->name('customer.profile');
         Route::get('/customer/reviews', [App\Http\Controllers\CustomerController::class, 'reviews'])->name('customer.reviews');
+        Route::get('/customer/wishlist', [App\Http\Controllers\CustomerController::class, 'wishlist'])->name('customer.wishlist');
+        Route::get('/customer/wishlist/count', [App\Http\Controllers\CustomerController::class, 'wishlistCount'])->name('customer.wishlist.count');
         Route::post('/customer/profile/update', [App\Http\Controllers\CustomerController::class, 'updateProfile'])->name('customer.profile.update');
         Route::post('/customer/address/update', [App\Http\Controllers\CustomerController::class, 'updateAddress'])->name('customer.address.update');
         Route::post('/customer/password/update', [App\Http\Controllers\CustomerController::class, 'updatePassword'])->name('customer.password.update');
         Route::put('/customer/preferences/update', [App\Http\Controllers\CustomerController::class, 'updatePreferences'])->name('customer.preferences.update');
         Route::get('/customer/wishlist/remove/{id}', [App\Http\Controllers\CustomerController::class, 'removeFromWishlist'])->name('customer.wishlist.remove');
         Route::post('/customer/review/store', [App\Http\Controllers\CustomerController::class, 'storeReview'])->name('customer.review.store');
+        Route::post('/customer/order/{id}/cancel', [App\Http\Controllers\CustomerController::class, 'cancelOrder'])->name('customer.order.cancel');
+        Route::get('/customer/order/{id}/view', [App\Http\Controllers\CustomerController::class, 'viewOrder'])->name('customer.order.view');
     });
 
     // Cart (accessible by all users, authentication handled in controller)
@@ -110,8 +111,15 @@ Route::middleware('auth')->group(function () {
     // Orders (accessible by customers and vendors)
     Route::middleware('auth')->group(function () {
         Route::get('/checkout', [OrderController::class, 'showCheckout'])->name('checkout');
+        Route::post('/buy-now', [OrderController::class, 'buyNow'])->name('buy.now');
         Route::post('/order/place', [OrderController::class, 'placeOrder'])->name('order.place');
         Route::get('/order/success', [OrderController::class, 'orderSuccess'])->name('order.success');
+    });
+
+    // Order Management (admin and vendor)
+    Route::middleware(['auth', 'role:admin,vendor'])->group(function () {
+        Route::get('/order/management', [OrderController::class, 'orderManagement'])->name('order.management');
+        Route::put('/order/update-status/{id}', [OrderController::class, 'updateOrderStatus'])->name('order.update.status');
     });
 
     // Likes (accessible by all authenticated users)

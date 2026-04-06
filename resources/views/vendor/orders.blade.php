@@ -27,54 +27,91 @@
     </div>
     
     @if($orders->count() > 0)
-        <div class="orders-grid">
-            @foreach($orders as $order)
-            <div class="order-card">
-                <!-- Order Header -->
-                <div class="order-header">
-                    <div class="order-id">Order #{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</div>
-                    <div class="order-status status-{{ $order->status }}">
-                        {{ ucfirst($order->status) }}
-                    </div>
-                </div>
-
-                <!-- Order Information -->
-                <div class="order-info">
-                    <div class="info-row">
-                        <span class="label">Customer:</span>
-                        <span class="value">{{ $order->shipping_name ?? $order->user->name }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Product:</span>
-                        <span class="value">{{ $order->product->post_title }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Quantity:</span>
-                        <span class="value">{{ $order->quantity }} pieces</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="label">Total Price:</span>
-                        <span class="value price">Rs. {{ number_format($order->total_price, 2) }}</span>
-                    </div>
-                </div>
-
-                <!-- Order Actions -->
-                <div class="order-actions">
-                    @if($order->status === 'pending')
-                        <button class="btn btn-accept" onclick="acceptOrder({{ $order->id }})">
-                            Accept Order
-                        </button>
-                        <button class="btn btn-reject" onclick="rejectOrder({{ $order->id }})">
-                            Reject Order
-                        </button>
-                    @elseif($order->status === 'accepted' || $order->status === 'processing')
-                        <button class="btn btn-deliver" onclick="markDelivered({{ $order->id }})">
-                            Mark as Delivered
-                        </button>
-                    @endif
-                </div>
-            </div>
-            @endforeach
+        <div class="table-container">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>ORDER</th>
+                        <th>CUSTOMER NAME</th>
+                        <th>PRODUCT</th>
+                        <th>QUANTITY</th>
+                        <th>TOTAL PRICE</th>
+                        <th>STATUS</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($orders as $order)
+                    <tr>
+                        <td>
+                            <div class="order-cell">
+                                <span class="order-id">#{{ str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                <span class="order-date">{{ $order->created_at->format('M d, Y') }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="customer-cell">
+                                <span class="customer-name">{{ $order->user->name }}</span>
+                                <span class="customer-email">{{ $order->user->email }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="product-name">{{ $order->product->post_title }}</span>
+                        </td>
+                        <td>
+                            <span class="quantity">{{ $order->quantity }} pieces</span>
+                        </td>
+                        <td>
+                            <span class="total-price">Rs. {{ number_format($order->total_price, 2) }}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ $order->status }}">
+                                {{ ucfirst($order->status) }}
+                            </span>
+                        </td>
+                        <td>
+                            @if($order->status === 'pending')
+                                <div class="action-dropdown">
+                                    <button class="dropdown-btn" onclick="toggleDropdown({{ $order->id }})">
+                                        <span class="dots">⋮</span>
+                                    </button>
+                                    <div class="dropdown-menu" id="dropdown-{{ $order->id }}">
+                                        <form action="{{ route('vendor.order.update', $order->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="accepted">
+                                            <button type="submit" class="dropdown-item accept">Accept Order</button>
+                                        </form>
+                                        <form action="{{ route('vendor.order.update', $order->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="cancelled">
+                                            <button type="submit" class="dropdown-item reject">Reject Order</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @elseif($order->status === 'accepted' || $order->status === 'processing')
+                                <div class="action-dropdown">
+                                    <button class="dropdown-btn" onclick="toggleDropdown({{ $order->id }})">
+                                        <span class="dots">⋮</span>
+                                    </button>
+                                    <div class="dropdown-menu" id="dropdown-{{ $order->id }}">
+                                        <form action="{{ route('vendor.order.update', $order->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="status" value="completed">
+                                            <button type="submit" class="dropdown-item deliver">Mark as Delivered</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @else
+                                <span class="status-final">{{ ucfirst($order->status) }}</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     @else
         <!-- No Orders Message -->
@@ -108,47 +145,116 @@
         color: #991b1b;
     }
 
-    /* Orders Grid */
-    .orders-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 25px;
-    }
-
-    /* Order Card */
-    .order-card {
+    /* Table Container */
+    .table-container {
         background: #ffffff;
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 25px;
-        transition: all 0.3s ease;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-    .order-card:hover {
-        border-color: #3498db;
-        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    /* Orders Table */
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
     }
 
-    /* Order Header */
-    .order-header {
+    .orders-table thead {
+        background: #f8f9fa;
+    }
+
+    .orders-table th {
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .orders-table tbody tr {
+        border-bottom: 1px solid #f3f4f6;
+        transition: background-color 0.2s ease;
+    }
+
+    .orders-table tbody tr:hover {
+        background: #f9fafb;
+    }
+
+    .orders-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .orders-table td {
+        padding: 16px 20px;
+        vertical-align: middle;
+    }
+
+    /* Order Cell */
+    .order-cell {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #f3f4f6;
+        flex-direction: column;
+        gap: 4px;
     }
 
     .order-id {
-        font-size: 18px;
-        font-weight: 700;
+        font-size: 14px;
+        font-weight: 600;
         color: #1f2937;
     }
 
-    .order-status {
-        padding: 8px 16px;
-        border-radius: 20px;
+    .order-date {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    /* Customer Cell */
+    .customer-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .customer-name {
         font-size: 14px;
+        font-weight: 500;
+        color: #1f2937;
+    }
+
+    .customer-email {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    /* Product Name */
+    .product-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1f2937;
+    }
+
+    /* Quantity */
+    .quantity {
+        font-size: 14px;
+        color: #1f2937;
+    }
+
+    /* Total Price */
+    .total-price {
+        font-size: 14px;
+        font-weight: 600;
+        color: #3498db;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -161,8 +267,8 @@
     }
 
     .status-accepted {
-        background: #dbeafe;
-        color: #1e40af;
+        background: #d1fae5;
+        color: #065f46;
     }
 
     .status-processing {
@@ -170,9 +276,9 @@
         color: #1e40af;
     }
 
-    .status-delivered {
-        background: #d1fae5;
-        color: #065f46;
+    .status-completed {
+        background: #d1ecf1;
+        color: #0c5460;
     }
 
     .status-cancelled {
@@ -180,97 +286,106 @@
         color: #991b1b;
     }
 
-    /* Order Information */
-    .order-info {
-        margin-bottom: 25px;
+    /* Action Dropdown */
+    .action-dropdown {
+        position: relative;
+        display: inline-block;
     }
 
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        padding: 8px 0;
-    }
-
-    .info-row .label {
-        font-size: 15px;
-        font-weight: 500;
+    .dropdown-btn {
+        background: transparent;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        font-size: 18px;
         color: #6b7280;
     }
 
-    .info-row .value {
-        font-size: 15px;
-        font-weight: 600;
-        color: #1f2937;
-        text-align: right;
+    .dropdown-btn:hover {
+        background: #f3f4f6;
+        color: #374151;
     }
 
-    .info-row .value.price {
-        color: #3498db;
-        font-size: 18px;
-        font-weight: 700;
+    .dots {
+        font-weight: bold;
+        line-height: 1;
     }
 
-    /* Order Actions */
-    .order-actions {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-    }
-
-    .btn {
-        flex: 1;
-        min-width: 140px;
-        padding: 14px 20px;
-        border: none;
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background: white;
+        border: 1px solid #e5e7eb;
         border-radius: 8px;
-        font-size: 15px;
-        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        min-width: 150px;
+        margin-top: 4px;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        background: none;
+        text-align: left;
         cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: center;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f3f4f6;
+        color: #374151;
     }
 
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    .dropdown-item:last-child {
+        border-bottom: none;
     }
 
-    .btn-accept {
-        background: #10b981;
-        color: white;
-        border: 2px solid #10b981;
+    .dropdown-item:hover {
+        background: #f9fafb;
     }
 
-    .btn-accept:hover {
-        background: #059669;
-        border-color: #059669;
+    .dropdown-item.accept {
+        color: #10b981;
     }
 
-    .btn-reject {
-        background: #ef4444;
-        color: white;
-        border: 2px solid #ef4444;
+    .dropdown-item.accept:hover {
+        background: #ecfdf5;
+        color: #059669;
     }
 
-    .btn-reject:hover {
-        background: #dc2626;
-        border-color: #dc2626;
+    .dropdown-item.reject {
+        color: #ef4444;
     }
 
-    .btn-deliver {
-        background: #3498db;
-        color: white;
-        border: 2px solid #3498db;
-        min-width: 100%;
+    .dropdown-item.reject:hover {
+        background: #fef2f2;
+        color: #dc2626;
     }
 
-    .btn-deliver:hover {
-        background: #2980b9;
-        border-color: #2980b9;
+    .dropdown-item.deliver {
+        color: #3498db;
+    }
+
+    .dropdown-item.deliver:hover {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .status-final {
+        color: #6b7280;
+        font-style: italic;
+        font-size: 13px;
+        font-weight: 500;
     }
 
     /* No Orders */
@@ -281,74 +396,78 @@
     }
 
     .no-orders h3 {
-        font-size: 24px;
+        font-size: 20px;
         font-weight: 600;
         color: #374151;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
     }
 
     .no-orders p {
-        font-size: 16px;
+        font-size: 14px;
         margin-bottom: 0;
     }
 
     /* Mobile Responsive */
+    @media (max-width: 1024px) {
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .orders-table {
+            min-width: 800px;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            padding: 12px 16px;
+        }
+    }
+
     @media (max-width: 768px) {
-        .orders-grid {
-            grid-template-columns: 1fr;
-            gap: 20px;
+        .orders-table {
+            min-width: 700px;
         }
 
-        .order-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
+        .orders-table th,
+        .orders-table td {
+            padding: 10px 12px;
         }
 
-        .order-status {
-            align-self: flex-end;
+        .orders-table th {
+            font-size: 11px;
         }
 
-        .info-row {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 5px;
+        .order-id,
+        .customer-name,
+        .product-name,
+        .quantity,
+        .total-price {
+            font-size: 13px;
         }
 
-        .info-row .value {
-            text-align: left;
+        .order-date,
+        .customer-email {
+            font-size: 11px;
         }
 
-        .order-actions {
-            flex-direction: column;
-        }
-
-        .btn {
-            min-width: 100%;
+        .status-badge {
+            font-size: 10px;
+            padding: 4px 8px;
         }
     }
 
     @media (max-width: 480px) {
-        .order-card {
-            padding: 20px;
+        .section-card {
+            padding: 15px;
         }
 
-        .order-id {
-            font-size: 16px;
+        .orders-table {
+            min-width: 600px;
         }
 
-        .order-status {
-            font-size: 12px;
-            padding: 6px 12px;
-        }
-
-        .info-row .label,
-        .info-row .value {
-            font-size: 14px;
-        }
-
-        .info-row .value.price {
-            font-size: 16px;
+        .orders-table th,
+        .orders-table td {
+            padding: 8px 10px;
         }
     }
 </style>
@@ -356,63 +475,61 @@
 
 @section('scripts')
 <script>
-    // Accept Order Function
-    function acceptOrder(orderId) {
-        if (confirm('Accept this order? You will need to prepare and deliver it.')) {
-            updateOrderStatus(orderId, 'accepted');
+function toggleDropdown(orderId) {
+    // Close all other dropdowns
+    const allDropdowns = document.querySelectorAll('.dropdown-menu');
+    allDropdowns.forEach(dropdown => {
+        if (dropdown.id !== `dropdown-${orderId}`) {
+            dropdown.classList.remove('show');
         }
-    }
+    });
+    
+    // Toggle current dropdown
+    const dropdown = document.getElementById(`dropdown-${orderId}`);
+    dropdown.classList.toggle('show');
+}
 
-    // Reject Order Function
-    function rejectOrder(orderId) {
-        if (confirm('Reject this order? This action cannot be undone.')) {
-            updateOrderStatus(orderId, 'cancelled');
-        }
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.action-dropdown')) {
+        const allDropdowns = document.querySelectorAll('.dropdown-menu');
+        allDropdowns.forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
     }
+});
 
-    // Mark as Delivered Function
-    function markDelivered(orderId) {
-        if (confirm('Mark this order as delivered? Customer will be notified.')) {
-            updateOrderStatus(orderId, 'delivered');
-        }
-    }
+// Add confirmation dialogs
+document.addEventListener('DOMContentLoaded', function() {
+    const acceptButtons = document.querySelectorAll('.dropdown-item.accept');
+    const rejectButtons = document.querySelectorAll('.dropdown-item.reject');
+    const deliverButtons = document.querySelectorAll('.dropdown-item.deliver');
+    
+    acceptButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Accept this order? You will need to process and deliver it.')) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    rejectButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Reject this order? This action cannot be undone.')) {
+                e.preventDefault();
+            }
+        });
+    });
 
-    // Update Order Status Function
-    function updateOrderStatus(orderId, status) {
-        // Create form and submit
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/vendor/order/${orderId}/update`;
-        
-        // Add CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_token';
-            csrfInput.value = csrfToken.getAttribute('content');
-            form.appendChild(csrfInput);
-        }
-        
-        // Add method override for PUT
-        const methodInput = document.createElement('input');
-        methodInput.type = 'hidden';
-        methodInput.name = '_method';
-        methodInput.value = 'PUT';
-        form.appendChild(methodInput);
-        
-        // Add status
-        const statusInput = document.createElement('input');
-        statusInput.type = 'hidden';
-        statusInput.name = 'status';
-        statusInput.value = status;
-        form.appendChild(statusInput);
-        
-        // Submit form
-        document.body.appendChild(form);
-        form.submit();
-    }
+    deliverButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Mark this order as delivered? Customer will be notified.')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
 
-    console.log('Vendor Orders page loaded successfully!');
+console.log('Vendor Orders page loaded successfully!');
 </script>
 @endsection

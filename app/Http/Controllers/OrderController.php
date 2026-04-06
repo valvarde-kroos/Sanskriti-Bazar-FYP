@@ -37,6 +37,40 @@ class OrderController extends Controller
         return view('checkout', compact('cartItems'));
     }
 
+    public function buyNow(Request $request)
+    {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('message', 'Please login to buy this product.');
+        }
+
+        // Validate the request
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $product = Product::findOrFail($request->product_id);
+
+        // Check if product is available
+        if ($request->quantity > $product->quantity) {
+            return redirect()->back()->with('error', "Only {$product->quantity} items available in stock.");
+        }
+
+        // Clear existing cart for this user (Buy Now should be immediate)
+        Cart::where('user_id', Auth::id())->delete();
+
+        // Add product to cart
+        Cart::create([
+            'user_id' => Auth::id(),
+            'product_id' => $request->product_id,
+            'quantity' => $request->quantity
+        ]);
+
+        // Redirect to checkout
+        return redirect()->route('checkout');
+    }
+
     public function placeOrder(Request $request)
     {
         // Check if user is authenticated
@@ -49,6 +83,7 @@ class OrderController extends Controller
             'shipping_name' => 'required|string|max:255',
             'shipping_address' => 'required|string|max:1000',
             'shipping_phone' => 'required|string|max:20',
+            'payment_method' => 'required|in:cash_on_delivery,esewa',
         ]);
 
         $cartItems = Cart::where('user_id', Auth::id())
@@ -82,6 +117,7 @@ class OrderController extends Controller
                     'shipping_name' => $request->shipping_name,
                     'shipping_address' => $request->shipping_address,
                     'shipping_phone' => $request->shipping_phone,
+                    'payment_method' => $request->payment_method,
                 ]);
 
                 // Update product stock
@@ -93,7 +129,11 @@ class OrderController extends Controller
 
             DB::commit();
 
-            return redirect()->route('order.success')->with('success', 'Order placed successfully! We will contact you soon for delivery.');
+            $successMessage = $request->payment_method === 'esewa' 
+                ? 'Order placed successfully! You will be redirected to eSewa for payment.' 
+                : 'Order placed successfully! We will contact you soon for delivery.';
+
+            return redirect()->route('order.success')->with('success', $successMessage);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -104,5 +144,40 @@ class OrderController extends Controller
     public function orderSuccess()
     {
         return view('order-success');
+    }
+
+    public function orderManagement()
+    {
+        $query = Order::with(['user', 'product']);
+        
+        // If user is a vendor, only show orders for their products
+        if (auth()->user()->role === 'vendor') {
+            $query->whereHas('product', function($q) {
+                $q->where('user_id', auth()->id());
+            });
+        }
+        
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
+        return view('order-management', compact('orders'));
+    }
+
+    public function updateOrderStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:accepted,rejected'
+        ]);
+
+        $order = Order::findOrFail($id);
+        
+        if ($request->status === 'accepted') {
+            $order->status = Order::STATUS_ACCEPTED;
+        } else {
+            $order->status = Order::STATUS_CANCELLED; // Using cancelled for rejected
+        }
+        
+        $order->save();
+
+        return redirect()->back()->with('success', 'Order status updated successfully!');
     }
 }

@@ -17,13 +17,28 @@ class LikeController extends Controller
 
         if ($like) {
             $like->delete();
-            return back()->with('success', 'Like removed.');
+            $message = 'Like removed.';
+            $isLiked = false;
         } else {
             Like::create([
                 'user_id' => Auth::id(),
                 'product_id' => $id,
             ]);
-            return back()->with('success', 'Product liked.');
+            $message = 'Product liked.';
+            $isLiked = true;
         }
+
+        // If it's an AJAX request, return JSON
+        if (request()->ajax()) {
+            $wishlistCount = Like::where('user_id', Auth::id())->count();
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'isLiked' => $isLiked,
+                'wishlistCount' => $wishlistCount
+            ]);
+        }
+
+        return back()->with('success', $message);
     }
 }

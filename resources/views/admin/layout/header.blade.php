@@ -4,14 +4,6 @@
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Search Bar -->
-    <div class="header-search">
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-input" placeholder="Search..." id="globalSearch">
-        </div>
-    </div>
-
     <!-- Header Actions -->
     <div class="header-actions">
         <!-- Notifications -->
@@ -105,48 +97,12 @@
         color: var(--gray-800);
     }
 
-    /* Search Bar */
-    .header-search {
-        flex: 1;
-        max-width: 400px;
-        position: relative;
-    }
-
-    .search-container {
-        position: relative;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 10px 16px 10px 40px;
-        border: 1px solid var(--gray-300);
-        border-radius: 6px;
-        font-size: 0.875rem;
-        outline: none;
-        transition: all 0.2s ease;
-        background: var(--gray-50);
-    }
-
-    .search-input:focus {
-        border-color: var(--primary-color);
-        background: var(--white);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--gray-400);
-        font-size: 0.875rem;
-    }
-
     /* Header Actions */
     .header-actions {
         display: flex;
         align-items: center;
         gap: 1rem;
+        margin-left: auto;
     }
 
     /* Notifications */
@@ -331,10 +287,6 @@
             display: block;
         }
 
-        .header-search {
-            max-width: 250px;
-        }
-
         .profile-info {
             display: none;
         }
@@ -345,10 +297,6 @@
             padding: 0 1rem;
         }
 
-        .header-search {
-            max-width: 200px;
-        }
-
         .notification-panel {
             width: 280px;
             right: -50px;
@@ -356,10 +304,6 @@
     }
 
     @media (max-width: 640px) {
-        .header-search {
-            display: none;
-        }
-
         .notification-panel {
             width: 260px;
             right: -80px;

@@ -3,121 +3,69 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<!-- Simple Dashboard Header -->
+<!-- Dashboard Header -->
 <div class="dashboard-header">
-    <h1>Welcome to Sanskriti Bazar Admin</h1>
-    <p class="dashboard-subtitle">Manage your traditional marketplace with ease</p>
+    <h1>Sanskriti Bazar Admin Dashboard</h1>
+    <p class="dashboard-subtitle">Overview of your traditional instrument marketplace</p>
 </div>
 
-<!-- Simple Summary Cards -->
-<div class="summary-cards">
-    <!-- Customers Card -->
-    <div class="summary-card customers-card">
-        <div class="card-icon">
-            <i class="fas fa-users"></i>
-        </div>
+<!-- Overview Cards -->
+<div class="overview-cards">
+    <!-- Total Categories Card -->
+    <div class="overview-card categories-card">
         <div class="card-content">
-            <h3>1,247</h3>
-            <p>Total Customers</p>
-            <span class="card-trend">+8% this month</span>
-        </div>
-    </div>
-
-    <!-- Vendors Card -->
-    <div class="summary-card vendors-card">
-        <div class="card-icon">
-            <i class="fas fa-store"></i>
-        </div>
-        <div class="card-content">
-            <h3>156</h3>
-            <p>Total Vendors</p>
-            <span class="card-trend">+12% this month</span>
-        </div>
-    </div>
-
-    <!-- Categories Card -->
-    <div class="summary-card categories-card">
-        <div class="card-icon">
-            <i class="fas fa-tags"></i>
-        </div>
-        <div class="card-content">
-            <h3>24</h3>
-            <p>Total Categories</p>
-            <span class="card-trend">2 new added</span>
-        </div>
-    </div>
-
-    <!-- Reviews Card -->
-    <div class="summary-card reviews-card">
-        <div class="card-icon">
-            <i class="fas fa-star"></i>
-        </div>
-        <div class="card-content">
-            <h3>3,892</h3>
-            <p>Total Reviews</p>
-            <span class="card-trend">+15% this month</span>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Actions -->
-<div class="quick-actions-section">
-    <h3>Quick Actions</h3>
-    <div class="actions-grid">
-        <a href="{{ route('admin.customers') }}" class="action-card">
-            <i class="fas fa-users"></i>
-            <span>Manage Customers</span>
-        </a>
-        <a href="{{ route('admin.vendors') }}" class="action-card">
-            <i class="fas fa-store"></i>
-            <span>Manage Vendors</span>
-        </a>
-        <a href="{{ route('admin.categories') }}" class="action-card">
-            <i class="fas fa-tags"></i>
-            <span>Manage Categories</span>
-        </a>
-        <a href="#" class="action-card">
-            <i class="fas fa-star"></i>
-            <span>View Reviews</span>
-        </a>
-    </div>
-</div>
-
-<!-- Recent Activity -->
-<div class="recent-activity">
-    <h3>Recent Activity</h3>
-    <div class="activity-list">
-        <div class="activity-item">
-            <div class="activity-icon">
-                <i class="fas fa-user-plus"></i>
+            <div class="card-info">
+                <h3>{{ $totalCategories }}</h3>
+                <p>Total Categories</p>
             </div>
-            <div class="activity-content">
-                <p><strong>New Customer Registered</strong></p>
-                <p>Rajesh Kumar joined Sanskriti Bazar</p>
-                <span>2 minutes ago</span>
+            <div class="card-icon">
+                <i class="fas fa-folder"></i>
             </div>
         </div>
-        
-        <div class="activity-item">
-            <div class="activity-icon">
+    </div>
+
+    <!-- Total Customers Card -->
+    <div class="overview-card customers-card">
+        <div class="card-content">
+            <div class="card-info">
+                <h3>{{ number_format($totalCustomers) }}</h3>
+                <p>Total Customers</p>
+            </div>
+            <div class="card-icon">
+                <i class="fas fa-users"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Vendors Card -->
+    <div class="overview-card vendors-card">
+        <div class="card-content">
+            <div class="card-info">
+                <h3>{{ $totalVendors }}</h3>
+                <p>Total Vendors</p>
+            </div>
+            <div class="card-icon">
                 <i class="fas fa-store"></i>
             </div>
-            <div class="activity-content">
-                <p><strong>Vendor Application</strong></p>
-                <p>Traditional Crafts Store applied for approval</p>
-                <span>15 minutes ago</span>
-            </div>
         </div>
-        
-        <div class="activity-item">
-            <div class="activity-icon">
-                <i class="fas fa-star"></i>
-            </div>
-            <div class="activity-content">
-                <p><strong>New Review</strong></p>
-                <p>5-star review for Handmade Pottery</p>
-                <span>1 hour ago</span>
-            </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="charts-section">
+    <!-- Bar Chart - Products per Category -->
+    <div class="chart-container">
+        <div class="chart-card">
+            <h3>Products per Category</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Pie Chart - Vendor Status -->
+    <div class="chart-container">
+        <div class="chart-card">
+            <h3>Vendor Status Distribution</h3>
+            <canvas id="vendorChart"></canvas>
         </div>
     </div>
 </div>
@@ -125,60 +73,80 @@
 
 @section('styles')
 <style>
-    /* Simple Dashboard Styles for Sanskriti Bazar */
-    
     /* Dashboard Header */
     .dashboard-header {
         text-align: center;
         margin-bottom: 2rem;
-        padding: 2rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        color: white;
+        padding: 1.5rem 0;
     }
 
     .dashboard-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
+        font-size: 2rem;
+        font-weight: 600;
+        color: #1f2937;
         margin: 0 0 0.5rem 0;
     }
 
     .dashboard-subtitle {
-        font-size: 1.1rem;
+        font-size: 1rem;
+        color: #6b7280;
         margin: 0;
-        opacity: 0.9;
     }
 
-    /* Summary Cards */
-    .summary-cards {
+    /* Overview Cards */
+    .overview-cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
         margin-bottom: 3rem;
     }
 
-    .summary-card {
+    .overview-card {
         background: white;
         border-radius: 12px;
-        padding: 1.5rem;
+        padding: 2rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
         transition: all 0.3s ease;
         border-left: 4px solid;
     }
 
-    .summary-card:hover {
+    .overview-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
 
     /* Card Colors */
-    .customers-card { border-left-color: #10b981; }
-    .vendors-card { border-left-color: #3b82f6; }
-    .categories-card { border-left-color: #f59e0b; }
-    .reviews-card { border-left-color: #8b5cf6; }
+    .categories-card {
+        border-left-color: #6a0dad;
+    }
+
+    .customers-card {
+        border-left-color: #4a90e2;
+    }
+
+    .vendors-card {
+        border-left-color: #6a0dad;
+    }
+
+    .card-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-info h3 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .card-info p {
+        font-size: 1rem;
+        color: #6b7280;
+        margin: 0;
+        font-weight: 500;
+    }
 
     .card-icon {
         width: 60px;
@@ -187,190 +155,218 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.8rem;
         color: white;
     }
 
-    .customers-card .card-icon { background: #10b981; }
-    .vendors-card .card-icon { background: #3b82f6; }
-    .categories-card .card-icon { background: #f59e0b; }
-    .reviews-card .card-icon { background: #8b5cf6; }
-
-    .card-content h3 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1f2937;
-        margin: 0 0 0.25rem 0;
+    .categories-card .card-icon {
+        background: linear-gradient(135deg, #6a0dad 0%, #8a2be2 100%);
     }
 
-    .card-content p {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin: 0 0 0.5rem 0;
-        font-weight: 500;
+    .customers-card .card-icon {
+        background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
     }
 
-    .card-trend {
-        font-size: 0.75rem;
-        color: #10b981;
-        font-weight: 600;
-        background: rgba(16, 185, 129, 0.1);
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
+    .vendors-card .card-icon {
+        background: linear-gradient(135deg, #6a0dad 0%, #8a2be2 100%);
     }
 
-    /* Quick Actions Section */
-    .quick-actions-section {
-        margin-bottom: 3rem;
-    }
-
-    .quick-actions-section h3 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #1f2937;
-        margin: 0 0 1rem 0;
-    }
-
-    .actions-grid {
+    /* Charts Section */
+    .charts-section {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
     }
 
-    .action-card {
-        background: white;
-        border: 2px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 1.5rem;
-        text-align: center;
-        text-decoration: none;
-        color: #374151;
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .action-card:hover {
-        border-color: #3b82f6;
-        background: #f8fafc;
-        transform: translateY(-2px);
-        color: #3b82f6;
-    }
-
-    .action-card i {
-        font-size: 2rem;
-    }
-
-    .action-card span {
-        font-weight: 500;
-    }
-
-    /* Recent Activity */
-    .recent-activity {
+    .chart-container {
         background: white;
         border-radius: 12px;
-        padding: 1.5rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
     }
 
-    .recent-activity h3 {
+    .chart-card {
+        padding: 1.5rem;
+    }
+
+    .chart-card h3 {
         font-size: 1.25rem;
         font-weight: 600;
         color: #1f2937;
-        margin: 0 0 1rem 0;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid #e5e7eb;
+        margin: 0 0 1.5rem 0;
+        text-align: center;
     }
 
-    .activity-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
+    .chart-card canvas {
+        max-height: 300px;
+        width: 100% !important;
     }
 
-    .activity-item {
-        display: flex;
-        gap: 1rem;
-        padding: 1rem;
-        background: #f9fafb;
-        border-radius: 8px;
-        transition: all 0.2s ease;
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .charts-section {
+            grid-template-columns: 1fr;
+        }
     }
 
-    .activity-item:hover {
-        background: #f3f4f6;
-    }
-
-    .activity-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        background: #3b82f6;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .activity-content p {
-        margin: 0 0 0.25rem 0;
-        font-size: 0.875rem;
-    }
-
-    .activity-content p:first-child {
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    .activity-content p:nth-child(2) {
-        color: #6b7280;
-    }
-
-    .activity-content span {
-        font-size: 0.75rem;
-        color: #9ca3af;
-    }
-
-    /* Mobile Responsive */
     @media (max-width: 768px) {
-        .dashboard-header {
-            padding: 1.5rem;
-        }
-
-        .dashboard-header h1 {
-            font-size: 2rem;
-        }
-
-        .summary-cards {
+        .overview-cards {
             grid-template-columns: 1fr;
         }
 
-        .actions-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .dashboard-header h1 {
+            font-size: 1.75rem;
         }
 
-        .card-content h3 {
+        .card-info h3 {
+            font-size: 2rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
             font-size: 1.5rem;
+        }
+
+        .overview-card {
+            padding: 1.5rem;
         }
     }
 
     @media (max-width: 480px) {
-        .actions-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .summary-card {
+        .card-content {
             flex-direction: column;
             text-align: center;
+            gap: 1rem;
         }
 
-        .activity-item {
-            flex-direction: column;
-            text-align: center;
+        .dashboard-header {
+            padding: 1rem 0;
         }
     }
 </style>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+@endsection
+
+@section('scripts')
+<script>
+    // Get data from PHP
+    const categoriesData = @json($productsPerCategory);
+    const vendorStatusData = @json($vendorStatusDistribution);
+
+    // Prepare data for bar chart
+    const categoryLabels = categoriesData.map(item => item.name);
+    const categoryValues = categoriesData.map(item => item.count);
+
+    // Bar Chart - Products per Category
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    const categoryChart = new Chart(categoryCtx, {
+        type: 'bar',
+        data: {
+            labels: categoryLabels,
+            datasets: [{
+                label: 'Number of Products',
+                data: categoryValues,
+                backgroundColor: categoryLabels.map((_, index) => 
+                    index % 2 === 0 ? '#6a0dad' : '#4a90e2'
+                ),
+                borderRadius: 6,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: '#6b7280',
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: '#f3f4f6'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#6b7280',
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // Pie Chart - Vendor Status Distribution
+    const vendorCtx = document.getElementById('vendorChart').getContext('2d');
+    const vendorChart = new Chart(vendorCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Active', 'Pending', 'Suspended'],
+            datasets: [{
+                data: [
+                    vendorStatusData.active,
+                    vendorStatusData.pending,
+                    vendorStatusData.suspended
+                ],
+                backgroundColor: [
+                    '#6a0dad',
+                    '#4a90e2',
+                    '#c3dfff'
+                ],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        font: {
+                            size: 12
+                        },
+                        color: '#6b7280'
+                    }
+                }
+            }
+        }
+    });
+
+    // Add some animation on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.overview-card');
+        cards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.5s ease';
+                
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, 100);
+            }, index * 150);
+        });
+    });
+</script>
 @endsection

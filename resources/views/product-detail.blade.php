@@ -96,7 +96,7 @@
                                 </button>
                             </form>
 
-                            <form action="{{ route('order.place') }}" method="POST" id="buyNowForm">
+                            <form action="{{ route('buy.now') }}" method="POST" id="buyNowForm">
                                 @csrf
                                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                                 <input type="hidden" name="quantity" id="buyQuantity" value="1">
@@ -108,28 +108,22 @@
                                 </button>
                             </form>
 
-                            <form action="{{ route('product.like', $product->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn-wishlist-detail {{ $isLiked ? 'active' : '' }}">
-                                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                                    </svg>
-                                </button>
-                            </form>
+                            <button type="button" class="btn-wishlist-detail {{ $isLiked ? 'active' : '' }}" onclick="toggleWishlist({{ $product->id }}, this)">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 @else
                     <div class="out-of-stock-message">
                         <p class="stock-warning">This product is currently out of stock</p>
-                        <form action="{{ route('product.like', $product->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn-wishlist-detail {{ $isLiked ? 'active' : '' }}">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                                </svg>
-                                Add to Wishlist
-                            </button>
-                        </form>
+                        <button type="button" class="btn-wishlist-detail {{ $isLiked ? 'active' : '' }}" onclick="toggleWishlist({{ $product->id }}, this)">
+                            <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                            </svg>
+                            Add to Wishlist
+                        </button>
                     </div>
                 @endif
             @else
@@ -240,5 +234,83 @@ document.addEventListener('DOMContentLoaded', function() {
         increaseBtn.style.cursor = 'not-allowed';
     }
 });
+
+// Wishlist toggle function
+function toggleWishlist(productId, button) {
+    // Get CSRF token
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    if (!token) {
+        console.error('CSRF token not found');
+        return;
+    }
+
+    // Disable button during request
+    button.disabled = true;
+    
+    fetch(`/product/${productId}/like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': token,
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update button state
+            if (data.isLiked) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+            
+            // Update wishlist count in navbar
+            const wishlistCountElements = document.querySelectorAll('.wishlist-count');
+            wishlistCountElements.forEach(element => {
+                element.textContent = data.wishlistCount;
+            });
+            
+            // Show success message
+            showMessage(data.message, 'success');
+        } else {
+            showMessage('Error updating wishlist', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Error updating wishlist', 'error');
+    })
+    .finally(() => {
+        // Re-enable button
+        button.disabled = false;
+    });
+}
+
+// Function to show messages
+function showMessage(message, type) {
+    // Create message element
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'}`;
+    messageDiv.textContent = message;
+    messageDiv.style.position = 'fixed';
+    messageDiv.style.top = '20px';
+    messageDiv.style.right = '20px';
+    messageDiv.style.zIndex = '9999';
+    messageDiv.style.padding = '12px 20px';
+    messageDiv.style.borderRadius = '8px';
+    messageDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    
+    // Add to page
+    document.body.appendChild(messageDiv);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 3000);
+}
 </script>
 @endsection

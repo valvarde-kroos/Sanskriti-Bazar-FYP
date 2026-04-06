@@ -12,6 +12,9 @@
             <li class="nav-item {{ request()->routeIs('customer.orders') ? 'active' : '' }}">
                 <a href="{{ route('customer.orders') }}" class="nav-link">My Orders</a>
             </li>
+            <li class="nav-item {{ request()->routeIs('customer.wishlist') ? 'active' : '' }}">
+                <a href="{{ route('customer.wishlist') }}" class="nav-link">My Wishlist</a>
+            </li>
             <li class="nav-item {{ request()->routeIs('cart') ? 'active' : '' }}">
                 <a href="{{ route('cart') }}" class="nav-link">Cart</a>
             </li>

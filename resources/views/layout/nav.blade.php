@@ -11,19 +11,30 @@
         <div class="navbar-menu" id="navbarMenu">
             <a href="{{ route('home') }}" class="nav-item {{ request()->routeIs('home') ? 'active' : '' }}">HOME</a>
             <a href="{{ route('shop.index') }}" class="nav-item {{ request()->routeIs('shop.*') ? 'active' : '' }}">SHOPS</a>
-            <a href="{{ route('about') }}" class="nav-item {{ request()->routeIs('about') ? 'active' : '' }}">ABOUT US</a>
+            <a href="#about" class="nav-item">ABOUT US</a>
             <a href="{{ route('contact') }}" class="nav-item {{ request()->routeIs('contact') ? 'active' : '' }}">CONTACT</a>
         </div>
 
         <!-- Right Side Icons -->
         <div class="navbar-actions">
-            <!-- Search Icon -->
-            <button class="action-icon search-icon" onclick="toggleSearch()">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-            </button>
+            <!-- Wishlist Icon -->
+            @auth
+                @if(!auth()->user()->isAdmin())
+                <a href="{{ route('customer.wishlist') }}" class="action-icon wishlist-icon">
+                    <svg width="20" height="20" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    <span class="wishlist-count">0</span>
+                </a>
+                @endif
+            @else
+                <a href="{{ route('login') }}" class="action-icon wishlist-icon">
+                    <svg width="20" height="20" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    <span class="wishlist-count">0</span>
+                </a>
+            @endauth
 
             <!-- Cart Icon -->
             @auth
@@ -82,28 +93,9 @@
             </button>
         </div>
     </div>
-
-    <!-- Search Bar (Hidden by default) -->
-    <div class="search-bar" id="searchBar">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search for products, vendors...">
-            <button class="search-submit-btn">
-                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                </svg>
-            </button>
-        </div>
-    </div>
 </nav>
 
 <script>
-    // Toggle search bar
-    function toggleSearch() {
-        const searchBar = document.getElementById('searchBar');
-        searchBar.classList.toggle('show');
-    }
-
     // Toggle user menu
     function toggleUserMenu() {
         const userMenu = document.getElementById('userMenu');
@@ -119,39 +111,20 @@
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(event) {
         const userDropdown = document.querySelector('.user-dropdown');
-        const searchBar = document.getElementById('searchBar');
         const userMenu = document.getElementById('userMenu');
 
         // Close user menu if clicking outside
         if (userDropdown && !userDropdown.contains(event.target)) {
             userMenu.classList.remove('show');
         }
-
-        // Close search if clicking outside
-        if (searchBar && !event.target.closest('.search-btn') && !searchBar.contains(event.target)) {
-            searchBar.classList.remove('show');
-        }
     });
 
-    // Handle search form submission
+    // Load cart and wishlist counts on page load
     document.addEventListener('DOMContentLoaded', function() {
-        const searchForm = document.querySelector('.search-container');
-        if (searchForm) {
-            searchForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const searchInput = document.querySelector('.search-input');
-                const query = searchInput.value.trim();
-                if (query) {
-                    // Redirect to shop with search query
-                    window.location.href = `{{ route('shop.index') }}?search=${encodeURIComponent(query)}`;
-                }
-            });
-        }
-
-        // Load cart count on page load
         @auth
             @if(!auth()->user()->isAdmin())
                 loadCartCount();
+                loadWishlistCount();
             @endif
         @endauth
     });
@@ -170,4 +143,27 @@
                 console.error('Error loading cart count:', error);
             });
     }
+
+    // Load wishlist count function
+    function loadWishlistCount() {
+        fetch('/customer/wishlist/count')
+            .then(response => response.json())
+            .then(data => {
+                const wishlistCountElements = document.querySelectorAll('.wishlist-count');
+                wishlistCountElements.forEach(element => {
+                    element.textContent = data.count || 0;
+                });
+            })
+            .catch(error => {
+                console.error('Error loading wishlist count:', error);
+                // Fallback to 0 if there's an error
+                const wishlistCountElements = document.querySelectorAll('.wishlist-count');
+                wishlistCountElements.forEach(element => {
+                    element.textContent = '0';
+                });
+            });
+    }
+
+    // Make loadWishlistCount globally available
+    window.loadWishlistCount = loadWishlistCount;
 </script>

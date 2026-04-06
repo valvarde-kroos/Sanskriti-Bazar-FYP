@@ -4,13 +4,12 @@
         <h1 class="navbar-title">Sanskriti Bazar Customer Panel</h1>
     </div>
 
-    <div class="navbar-center">
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search products, orders...">
-        </div>
-    </div>
-
     <div class="navbar-right">
+        <a href="{{ route('customer.wishlist') }}" class="wishlist-btn" title="My Wishlist">
+            <i class="fas fa-heart"></i>
+            <span class="wishlist-count">0</span>
+        </a>
+        
         <div class="customer-profile" onclick="toggleProfileDropdown()">
             <span class="customer-name">{{ Auth::user()->name ?? 'Customer' }}</span>
             <span class="dropdown-arrow">▼</span>
@@ -18,6 +17,7 @@
             <div class="profile-dropdown" id="profileDropdown">
                 <a href="{{ route('customer.profile') }}" class="dropdown-item">Profile</a>
                 <a href="{{ route('customer.orders') }}" class="dropdown-item">My Orders</a>
+                <a href="{{ route('customer.wishlist') }}" class="dropdown-item">My Wishlist</a>
                 <div class="dropdown-divider"></div>
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                     @csrf
@@ -61,34 +61,50 @@
         color: #2c3e50;
     }
 
-    .navbar-center {
-        flex: 1;
-        max-width: 500px;
-        margin: 0 30px;
-    }
-
-    .search-container {
-        width: 100%;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.3s;
-    }
-
-    .search-input:focus {
-        border-color: #3498db;
-    }
-
     .navbar-right {
         display: flex;
         align-items: center;
         gap: 20px;
+    }
+
+    /* Wishlist Button */
+    .wishlist-btn {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        color: #e74c3c;
+        font-size: 18px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .wishlist-btn:hover {
+        background: #e74c3c;
+        color: #fff;
+        border-color: #e74c3c;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+
+    .wishlist-count {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #e74c3c;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 10px;
+        min-width: 18px;
+        text-align: center;
+        line-height: 1.2;
     }
 
     .customer-profile {
@@ -181,8 +197,14 @@
             font-size: 16px;
         }
 
-        .navbar-center {
-            display: none;
+        .navbar-right {
+            gap: 15px;
+        }
+
+        .wishlist-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 16px;
         }
     }
 </style>
@@ -209,5 +231,23 @@
                 sidebar.classList.toggle('mobile-open');
             });
         }
+
+        // Load wishlist count
+        loadWishlistCount();
     });
+
+    // Function to load wishlist count
+    function loadWishlistCount() {
+        fetch('/customer/wishlist/count')
+            .then(response => response.json())
+            .then(data => {
+                const wishlistCountElements = document.querySelectorAll('.wishlist-count');
+                wishlistCountElements.forEach(element => {
+                    element.textContent = data.count || 0;
+                });
+            })
+            .catch(error => {
+                console.error('Error loading wishlist count:', error);
+            });
+    }
 </script>
