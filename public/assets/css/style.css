@@ -4265,7 +4265,8 @@ footer a:hover {
 
 /* HERO SECTION */
 .hero-section {
-    background: rgba(0,0,0,0.3), url('uploads/instruments.jpg');/* Semi-transparent overlay for better text readability */
+    background:linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+            url('../../uploads/mm.jpg');/* Semi-transparent overlay for better text readability */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -4287,7 +4288,7 @@ footer a:hover {
     font-weight: 800;
     margin-bottom: 2rem; /* Increased margin */
     line-height: 1.1; /* Tighter line height for bigger text */
-    text-shadow: 3px 3px 6px rgba(0,0,0,0.7); /* Stronger text shadow */
+    text-shadow: 3px 3px 6px rgba(0,0,10,0.7); /* Stronger text shadow */
 }
 
 .hero-subtitle {
