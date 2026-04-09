@@ -14,24 +14,13 @@
         <div class="hero-content">
             <div class="hero-text">
                 <h1 class="hero-title">Welcome to Sanskriti Bazar</h1>
-                <p class="hero-subtitle">Discover Authentic Nepali Handicrafts & Cultural Treasures</p>
+                <p class="hero-subtitle">Traditional Instruments, Timeless Culture</p>
                 <p class="hero-description">
-                    Your one-stop destination for traditional Nepali musical instruments, handcrafted artifacts, 
-                    and cultural items. Supporting local artisans and preserving Nepal's rich heritage.
+                   Discover handmade Nepali instruments that reflect generations of culture, craftsmanship, and musical tradition.
                 </p>
                 <div class="hero-buttons">
                     <a href="{{ route('shop.index') }}" class="btn-primary">Explore Products</a>
-                    <a href="#about" class="btn-secondary">Learn More</a>
-                </div>
-            </div>
-            <div class="hero-image">
-                <div class="image-placeholder">
-                    <i class="fas fa-music"></i>
-                    <p>Traditional Nepali Instruments</p>
-                </div>
-            </div>
-        </div>
-    </div>
+                    
 </section>
 
 <!-- FEATURES SECTION -->
@@ -179,14 +168,101 @@
         <div class="cta-content">
             <h2 class="cta-title">Start Your Cultural Journey Today</h2>
             <p class="cta-description">
-                Join thousands of customers who trust Sanskriti Bazar for authentic Nepali handicrafts. 
-                Discover unique products and support local artisans.
+                Join thousands of customers who trust Sanskriti Bazar for authentic Nepali traditional musical instruments. 
+                Discover unique products and support local vendors.
             </p>
             <div class="cta-buttons">
                 <a href="{{ route('shop.index') }}" class="btn-primary">Browse Products</a>
-                <a href="#contact" class="btn-secondary">Contact Us</a>
+                <a href="{{ route('contact') }}" class="btn-secondary">Contact Us</a>
             </div>
         </div>
     </div>
 </section>
+
+<script>
+// Add to cart function
+function addToCart(productId) {
+    // Check if user is authenticated
+    @auth
+        // Show loading state
+        event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+        event.target.disabled = true;
+        
+        // Make AJAX request to add product to cart
+        fetch(`/cart/add/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({
+                quantity: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Product added to cart successfully!');
+                // Update cart count if needed
+                updateCartCount();
+                event.target.innerHTML = '<i class="fas fa-check"></i> Added!';
+                
+                // Reset button after 2 seconds
+                setTimeout(() => {
+                    event.target.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+                    event.target.disabled = false;
+                }, 2000);
+            } else {
+                alert('Error adding product to cart: ' + (data.message || 'Unknown error'));
+                event.target.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+                event.target.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding product to cart. Please try again.');
+            event.target.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
+            event.target.disabled = false;
+        });
+    @else
+        // Redirect to login if not authenticated
+        if (confirm('Please login to add products to cart. Would you like to go to the login page?')) {
+            window.location.href = '{{ route("login") }}';
+        }
+    @endauth
+}
+
+// Login required function for demo products
+function loginRequired() {
+    if (confirm('Please login to add products to cart. Would you like to go to the login page?')) {
+        window.location.href = '{{ route("login") }}';
+    }
+}
+
+// Update cart count function
+function updateCartCount() {
+    @auth
+        fetch('/cart/count')
+            .then(response => response.json())
+            .then(data => {
+                const cartCountElements = document.querySelectorAll('.cart-count');
+                cartCountElements.forEach(element => {
+                    element.textContent = data.count || 0;
+                });
+            })
+            .catch(error => {
+                console.error('Error updating cart count:', error);
+            });
+    @endauth
+}
+
+// Load cart count on page load
+document.addEventListener('DOMContentLoaded', function() {
+    @auth
+        @if(!auth()->user()->isAdmin())
+            updateCartCount();
+        @endif
+    @endauth
+});
+</script>
 @endsection

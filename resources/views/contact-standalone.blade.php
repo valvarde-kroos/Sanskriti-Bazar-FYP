@@ -432,7 +432,7 @@
                         </div>
                         <div class="contact-details">
                             <h3>Address</h3>
-                            <p>Kathmandu, Nepal<br>Thamel, Ward No. 26</p>
+                            <p>Pokhara, Nepal</p>
                         </div>
                     </div>
                     
@@ -442,7 +442,7 @@
                         </div>
                         <div class="contact-details">
                             <h3>Phone</h3>
-                            <p>+977-9816618275<br>+977-1-4567890</p>
+                            <p>+977-9816618275</p>
                         </div>
                     </div>
                     
@@ -452,7 +452,7 @@
                         </div>
                         <div class="contact-details">
                             <h3>Email</h3>
-                            <p>sanskritibazar@gmail.com<br>info@sanskritibazar.com</p>
+                            <p>sanskritibazar@gmail.com</p>
                         </div>
                     </div>
                     
