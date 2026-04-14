@@ -29,35 +29,39 @@
         <h2 class="section-title">Why Choose Sanskriti Bazar</h2>
         <div class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-certificate"></i>
-                </div>
+            
                 <h3>100% Authentic</h3>
-                <p>Genuine Nepali handicrafts sourced directly from local artisans and traditional craftsmen.</p>
+                <p>Genuine Nepali instruments like Madal & Sarangi.</p>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-users"></i>
-                </div>
+            
                 <h3>Support Local Vendors</h3>
-                <p>Every purchase directly supports local Nepali vendors and helps preserve traditional crafts.</p>
+                <p>Helping Nepali craftsmen and preserving traditions.</p>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-shipping-fast"></i>
-                </div>
-                <h3>Fast Delivery</h3>
-                <p>Quick and reliable delivery across Nepal with secure packaging to protect your items.</p>
+                
+                <h3>Unique Cultural Collection </h3>
+                <p>Wide variety of traditional instruments.</p>
             </div>
             
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>Secure Shopping</h3>
-                <p>Safe and secure payment methods with buyer protection and satisfaction guarantee.</p>
+                
+                <h3>High Quality</h3>
+                <p>Handmade with durable materials and authentic sound.</p>
+            </div>
+
+            <div class="feature-card">
+                
+                <h3>Easy Shopping</h3>
+                <p>Simple, secure ordering with reliable delivery.</p>
+            </div>
+
+            <div class="feature-card">
+                
+                <h3>For Everyone</h3>
+                <p>Perfect for beginners and professionals.</p>
             </div>
         </div>
     </div>

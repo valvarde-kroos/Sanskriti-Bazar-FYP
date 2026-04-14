@@ -13,13 +13,15 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
+        // Clear existing categories first
+        Category::truncate();
+        
         $categories = [
-            ['categoryName' => 'Madal', 'image' => null],
-            ['categoryName' => 'Bansuri', 'image' => null],
-            ['categoryName' => 'Sarangi', 'image' => null],
-            ['categoryName' => 'Damaha', 'image' => null],
-            ['categoryName' => 'Tungna', 'image' => null],
-            ['categoryName' => 'Khaijhandi', 'image' => null],
+            ['categoryName' => 'Percussion Instruments'],
+            ['categoryName' => 'Wind Instruments'],
+            ['categoryName' => 'String Instruments'],
+            ['categoryName' => 'Traditional Instruments'],
+            ['categoryName' => 'Idiophones'],
         ];
 
         foreach ($categories as $category) {

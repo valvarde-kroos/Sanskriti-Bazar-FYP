@@ -50,7 +50,7 @@ class ShopController extends Controller
         }
         
         $products = $query->paginate(12);
-        $categories = Category::all();
+        $categories = Category::orderBy('categoryName')->get();
         
         return view('shop', compact('products', 'categories'));
     }

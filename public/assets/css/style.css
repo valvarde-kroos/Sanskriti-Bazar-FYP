@@ -743,14 +743,14 @@ footer a:hover {
 }
 
 .container h1 {
-    color: #2d3748;
+    color: #fff;
     font-size: 36px;
     font-weight: 700;
     margin-bottom: 10px;
 }
 
 .container > p {
-    color: #718096;
+    color: #fff;
     font-size: 18px;
     margin-bottom: 40px;
 }
@@ -3235,16 +3235,16 @@ footer a:hover {
 
 .search-input {
     flex: 1;
-    padding: 12px 20px;
+    padding: 12px 400px;
     border: 2px solid #e9ecef;
     border-radius: 25px;
-    font-size: 16px;
+    font-size: 30px;
     outline: none;
     transition: border-color 0.3s ease;
 }
 
 .search-input:focus {
-    border-color: #667eea;
+    border-color: #fff;
 }
 
 .search-submit-btn {
@@ -3527,7 +3527,7 @@ footer a:hover {
 
 .famms-navbar .nav-item:hover,
 .famms-navbar .nav-item.active {
-    color: #ff4757;
+    color: #2c3e50;
 }
 
 .famms-navbar .nav-item.active::after {
@@ -3537,7 +3537,7 @@ footer a:hover {
     left: 0;
     right: 0;
     height: 2px;
-    background: #ff4757;
+    background: #000000;
 }
 
 .famms-navbar .navbar-actions {
@@ -3599,14 +3599,14 @@ footer a:hover {
 }
 
 .famms-navbar .signup-btn {
-    background: #ff4757;
-    color: white;
-    border: 2px solid #ff4757;
+    background: transparent;
+    color: black;
+    border: 2px solid #2c3e50;
 }
 
 .famms-navbar .signup-btn:hover {
-    background: #ff3742;
-    border-color: #ff3742;
+    background: #2c3e50;
+    border-color: #2c3e50;
 }
 
 /* ================= HERO SLIDER SECTION ================= */
@@ -3663,14 +3663,14 @@ footer a:hover {
 .hero-subtitle {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #2c3e50;
+    color: #fff;
     line-height: 1.2;
     margin-bottom: 20px;
 }
 
 .hero-description {
     font-size: 1.1rem;
-    color: #6c757d;
+    color: #fff;
     line-height: 1.6;
     margin-bottom: 30px;
 }
@@ -4265,7 +4265,7 @@ footer a:hover {
 
 /* HERO SECTION */
 .hero-section {
-    background:linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+    background:
             url('../../uploads/mm.jpg');/* Semi-transparent overlay for better text readability */
     background-size: cover;
     background-position: center;
@@ -4330,14 +4330,14 @@ footer a:hover {
 }
 
 .btn-primary {
-    background: #ff4757;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    border: 2px solid #ff4757;
+    border: 2px solid #fef3c7;
 }
 
 .btn-primary:hover {
-    background: #ff3742;
-    border-color: #ff3742;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     transform: translateY(-2px);
 }
 
@@ -4396,7 +4396,7 @@ footer a:hover {
 }
 
 .feature-card {
-    background: white;
+    background: #fff;
     padding: 40px 30px;
     border-radius: 15px;
     text-align: center;
@@ -4510,7 +4510,7 @@ footer a:hover {
 .product-price {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #ff4757;
+    color: #000000;
     margin-bottom: 15px;
 }
 
@@ -4537,12 +4537,12 @@ footer a:hover {
 }
 
 .add-to-cart-btn {
-    background: #ff4757;
+    background: linear-gradient(135deg, rgb(0, 123, 255), rgb(111, 66, 193));;
     color: white;
 }
 
 .add-to-cart-btn:hover {
-    background: #ff3742;
+    background: linear-gradient(135deg, rgb(0, 123, 255), rgb(111, 66, 193));
 }
 
 .view-details-btn {

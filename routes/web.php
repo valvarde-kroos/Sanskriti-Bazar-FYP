@@ -12,7 +12,9 @@ use App\Http\Controllers\OrderController;
 // Home & Contact
 // ----------------------
 Route::get('/', [ProductController::class, 'index'])->name('home');
-Route::view('/contact', 'contact')->name('contact');
+Route::get('/contact', function() { return view('contact'); })->name('contact');
+Route::post('/contact', [App\Http\Controllers\ContactController::class, 'send'])->name('contact.send');
+Route::view('/about', 'about')->name('about');
 
 // Shop Routes (Public)
 Route::get('/shop', [App\Http\Controllers\ShopController::class, 'index'])->name('shop.index');

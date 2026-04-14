@@ -28,7 +28,8 @@
     
     @if($orders->count() > 0)
         <div class="table-container">
-            <table class="orders-table">
+            <div class="table-wrapper">
+                <table class="orders-table">
                 <thead>
                     <tr>
                         <th>ORDER</th>
@@ -111,7 +112,8 @@
                     </tr>
                     @endforeach
                 </tbody>
-            </table>
+                </table>
+            </div>
         </div>
     @else
         <!-- No Orders Message -->
@@ -149,8 +151,15 @@
     .table-container {
         background: #ffffff;
         border-radius: 8px;
-        overflow: hidden;
+        overflow: visible; /* Changed from hidden to visible */
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    /* Wrapper for horizontal scroll on mobile */
+    .table-wrapper {
+        overflow-x: auto;
+        overflow-y: visible;
     }
 
     /* Orders Table */
@@ -158,6 +167,7 @@
         width: 100%;
         border-collapse: collapse;
         font-size: 14px;
+        table-layout: fixed;
     }
 
     .orders-table thead {
@@ -175,6 +185,15 @@
         border-bottom: 1px solid #e5e7eb;
     }
 
+    /* Column widths */
+    .orders-table th:nth-child(1) { width: 12%; } /* ORDER */
+    .orders-table th:nth-child(2) { width: 18%; } /* CUSTOMER NAME */
+    .orders-table th:nth-child(3) { width: 15%; } /* PRODUCT */
+    .orders-table th:nth-child(4) { width: 10%; } /* QUANTITY */
+    .orders-table th:nth-child(5) { width: 12%; } /* TOTAL PRICE */
+    .orders-table th:nth-child(6) { width: 13%; } /* STATUS */
+    .orders-table th:nth-child(7) { width: 20%; } /* ACTIONS */
+
     .orders-table tbody tr {
         border-bottom: 1px solid #f3f4f6;
         transition: background-color 0.2s ease;
@@ -191,6 +210,13 @@
     .orders-table td {
         padding: 16px 20px;
         vertical-align: middle;
+        word-wrap: break-word;
+    }
+
+    /* Actions column specific styling */
+    .orders-table td:last-child {
+        position: relative;
+        text-align: center;
     }
 
     /* Order Cell */
@@ -293,38 +319,62 @@
     }
 
     .dropdown-btn {
-        background: transparent;
-        border: none;
+        background: #f8f9fa;
+        border: 1px solid #e5e7eb;
         padding: 8px 12px;
         cursor: pointer;
         border-radius: 6px;
         transition: all 0.2s ease;
         font-size: 18px;
         color: #6b7280;
+        min-width: 40px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .dropdown-btn:hover {
-        background: #f3f4f6;
+        background: #e5e7eb;
         color: #374151;
+        border-color: #d1d5db;
+    }
+
+    .dropdown-btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
     }
 
     .dots {
         font-weight: bold;
         line-height: 1;
+        font-size: 16px;
     }
 
     .dropdown-menu {
         display: none;
         position: absolute;
         right: 0;
-        top: 100%;
+        top: calc(100% + 4px);
         background: white;
         border: 1px solid #e5e7eb;
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        z-index: 1000;
-        min-width: 150px;
-        margin-top: 4px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        min-width: 180px;
+        overflow: hidden;
+        animation: dropdownFadeIn 0.15s ease-out;
+    }
+
+    @keyframes dropdownFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .dropdown-menu.show {
@@ -339,11 +389,12 @@
         background: none;
         text-align: left;
         cursor: pointer;
-        font-size: 13px;
+        font-size: 14px;
         font-weight: 500;
         transition: all 0.2s ease;
         border-bottom: 1px solid #f3f4f6;
         color: #374151;
+        text-decoration: none;
     }
 
     .dropdown-item:last-child {
@@ -409,7 +460,7 @@
 
     /* Mobile Responsive */
     @media (max-width: 1024px) {
-        .table-container {
+        .table-wrapper {
             overflow-x: auto;
         }
 
@@ -421,6 +472,15 @@
         .orders-table td {
             padding: 12px 16px;
         }
+
+        /* Adjust column widths for tablet */
+        .orders-table th:nth-child(1) { width: 100px; }
+        .orders-table th:nth-child(2) { width: 150px; }
+        .orders-table th:nth-child(3) { width: 120px; }
+        .orders-table th:nth-child(4) { width: 80px; }
+        .orders-table th:nth-child(5) { width: 100px; }
+        .orders-table th:nth-child(6) { width: 100px; }
+        .orders-table th:nth-child(7) { width: 150px; }
     }
 
     @media (max-width: 768px) {
@@ -454,6 +514,21 @@
             font-size: 10px;
             padding: 4px 8px;
         }
+
+        .dropdown-btn {
+            padding: 6px 10px;
+            min-width: 36px;
+            height: 32px;
+        }
+
+        .dropdown-menu {
+            min-width: 160px;
+        }
+
+        .dropdown-item {
+            padding: 10px 14px;
+            font-size: 13px;
+        }
     }
 
     @media (max-width: 480px) {
@@ -468,6 +543,21 @@
         .orders-table th,
         .orders-table td {
             padding: 8px 10px;
+        }
+
+        .dropdown-btn {
+            padding: 4px 8px;
+            min-width: 32px;
+            height: 28px;
+        }
+
+        .dropdown-menu {
+            min-width: 140px;
+        }
+
+        .dropdown-item {
+            padding: 8px 12px;
+            font-size: 12px;
         }
     }
 </style>
