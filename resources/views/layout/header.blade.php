@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Sanskriti Bazar</title>
 
+    <!-- Preload critical resources -->
+    <link rel="preload" href="{{ asset('uploads/mm.jpg') }}" as="image">
+
     <!-- Main CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 

@@ -3,8 +3,14 @@
 @section('hyasabicontentauncha')
 <!-- SUCCESS MESSAGE -->
 @if (session('success'))
-<div class="alert alert-success">
+<div class="alert alert-success" id="successAlert">
     {{ session('success') }}
+</div>
+@endif
+
+@if (session('error'))
+<div class="alert alert-danger" id="errorAlert">
+    {{ session('error') }}
 </div>
 @endif
 
@@ -53,7 +59,7 @@
             </div>
 
             <div class="feature-card">
-                
+
                 <h3>Easy Shopping</h3>
                 <p>Simple, secure ordering with reliable delivery.</p>
             </div>
@@ -62,6 +68,18 @@
                 
                 <h3>For Everyone</h3>
                 <p>Perfect for beginners and professionals.</p>
+            </div>
+
+             <div class="feature-card">
+                
+                <h3>Affordable Pricing</h3>
+                <p>Fair prices for high-quality traditional instruments.</p>
+            </div>
+
+             <div class="feature-card">
+                
+                <h3>Reliable Service</h3>
+                <p>Trusted platform with smooth ordering and customer support.</p>
             </div>
         </div>
     </div>
@@ -74,86 +92,112 @@
         <div class="products-grid">
             @forelse($products ?? [] as $product)
             <div class="product-card">
-                <div class="product-image">
+                <div class="product-image-container">
                     @if($product->image)
-                        <img src="{{ asset('uploads/' . $product->image) }}" alt="{{ $product->post_title }}">
+                        <img src="{{ asset('uploads/' . $product->image) }}" alt="{{ $product->post_title }}" class="product-image">
                     @else
-                        <div class="no-image">
-                            <i class="fas fa-image"></i>
-                            <span>No Image</span>
+                        <div class="no-image-placeholder">
+                            <i class="fas fa-music"></i>
                         </div>
                     @endif
                 </div>
-                <div class="product-info">
-                    <h3 class="product-name">{{ $product->post_title }}</h3>
-                    <p class="product-vendor">by {{ $product->user->name ?? 'Unknown Vendor' }}</p>
+                
+                <div class="product-details">
+                    <h3 class="product-title">{{ $product->post_title }}</h3>
+                    <p class="product-vendor">by {{ $product->user->name ?? 'Vendor User' }}</p>
                     <div class="product-price">Rs. {{ number_format($product->price ?? 0, 2) }}</div>
-                    <div class="product-actions">
-                        <button class="add-to-cart-btn" onclick="addToCart({{ $product->id }})">
-                            <i class="fas fa-shopping-cart"></i> Add to Cart
-                        </button>
-                        <a href="{{ route('shop.product', $product->id) }}" class="view-details-btn">View Details</a>
+                    
+                    <div class="product-buttons">
+                        @auth
+                            <form action="{{ route('cart.add', $product->id) }}" method="POST" class="add-cart-form">
+                                @csrf
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="btn-add-cart-home">
+                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                </button>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}" class="btn-login-to-buy-home">
+                                <i class="fas fa-sign-in-alt"></i> Login to Buy
+                            </a>
+                        @endauth
+                        <a href="{{ route('shop.product', $product->id) }}" class="btn-view-details-home">View Details</a>
                     </div>
                 </div>
             </div>
             @empty
             <!-- Sample Products for Demo -->
             <div class="product-card">
-                <div class="product-image">
-                    <div class="no-image">
+                <div class="product-image-container">
+                    <div class="no-image-placeholder">
                         <i class="fas fa-drum"></i>
-                        <span>Madal</span>
                     </div>
                 </div>
-                <div class="product-info">
-                    <h3 class="product-name">Traditional Madal</h3>
+                <div class="product-details">
+                    <h3 class="product-title">Traditional Madal</h3>
                     <p class="product-vendor">by Himalayan Music Store</p>
                     <div class="product-price">Rs. 5,000.00</div>
-                    <div class="product-actions">
-                        <button class="add-to-cart-btn" onclick="loginRequired()">
-                            <i class="fas fa-shopping-cart"></i> Add to Cart
-                        </button>
-                        <a href="{{ route('shop.index') }}" class="view-details-btn">View Details</a>
+                    <div class="product-buttons">
+                        @auth
+                            <a href="{{ route('shop.index') }}" class="btn-add-cart-home">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="btn-login-to-buy-home">
+                                <i class="fas fa-sign-in-alt"></i> Login to Buy
+                            </a>
+                        @endauth
+                        <a href="{{ route('shop.index') }}" class="btn-view-details-home">View Details</a>
                     </div>
                 </div>
             </div>
             
             <div class="product-card">
-                <div class="product-image">
-                    <div class="no-image">
+                <div class="product-image-container">
+                    <div class="no-image-placeholder">
                         <i class="fas fa-guitar"></i>
-                        <span>Sarangi</span>
                     </div>
                 </div>
-                <div class="product-info">
-                    <h3 class="product-name">Nepali Sarangi</h3>
+                <div class="product-details">
+                    <h3 class="product-title">Nepali Sarangi</h3>
                     <p class="product-vendor">by Traditional Crafts Nepal</p>
                     <div class="product-price">Rs. 8,500.00</div>
-                    <div class="product-actions">
-                        <button class="add-to-cart-btn" onclick="loginRequired()">
-                            <i class="fas fa-shopping-cart"></i> Add to Cart
-                        </button>
-                        <a href="{{ route('shop.index') }}" class="view-details-btn">View Details</a>
+                    <div class="product-buttons">
+                        @auth
+                            <a href="{{ route('shop.index') }}" class="btn-add-cart-home">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="btn-login-to-buy-home">
+                                <i class="fas fa-sign-in-alt"></i> Login to Buy
+                            </a>
+                        @endauth
+                        <a href="{{ route('shop.index') }}" class="btn-view-details-home">View Details</a>
                     </div>
                 </div>
             </div>
             
             <div class="product-card">
-                <div class="product-image">
-                    <div class="no-image">
+                <div class="product-image-container">
+                    <div class="no-image-placeholder">
                         <i class="fas fa-wind"></i>
-                        <span>Bansuri</span>
                     </div>
                 </div>
-                <div class="product-info">
-                    <h3 class="product-name">Bamboo Bansuri</h3>
+                <div class="product-details">
+                    <h3 class="product-title">Bamboo Bansuri</h3>
                     <p class="product-vendor">by Kathmandu Folk Instruments</p>
                     <div class="product-price">Rs. 2,500.00</div>
-                    <div class="product-actions">
-                        <button class="add-to-cart-btn" onclick="loginRequired()">
-                            <i class="fas fa-shopping-cart"></i> Add to Cart
-                        </button>
-                        <a href="{{ route('shop.index') }}" class="view-details-btn">View Details</a>
+                    <div class="product-buttons">
+                        @auth
+                            <a href="{{ route('shop.index') }}" class="btn-add-cart-home">
+                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="btn-login-to-buy-home">
+                                <i class="fas fa-sign-in-alt"></i> Login to Buy
+                            </a>
+                        @endauth
+                        <a href="{{ route('shop.index') }}" class="btn-view-details-home">View Details</a>
                     </div>
                 </div>
             </div>
@@ -184,64 +228,51 @@
 </section>
 
 <script>
-// Add to cart function
-function addToCart(productId) {
-    // Check if user is authenticated
-    @auth
-        // Show loading state
-        event.target.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-        event.target.disabled = true;
-        
-        // Make AJAX request to add product to cart
-        fetch(`/cart/add/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            },
-            body: JSON.stringify({
-                quantity: 1
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Product added to cart successfully!');
-                // Update cart count if needed
-                updateCartCount();
-                event.target.innerHTML = '<i class="fas fa-check"></i> Added!';
-                
-                // Reset button after 2 seconds
-                setTimeout(() => {
-                    event.target.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
-                    event.target.disabled = false;
-                }, 2000);
-            } else {
-                alert('Error adding product to cart: ' + (data.message || 'Unknown error'));
-                event.target.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
-                event.target.disabled = false;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error adding product to cart. Please try again.');
-            event.target.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
-            event.target.disabled = false;
+// Add to cart functionality with loading state
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartForms = document.querySelectorAll('.add-cart-form');
+    
+    addToCartForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const button = form.querySelector('.btn-add-cart-home');
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+            button.disabled = true;
+            
+            // Re-enable button after 2 seconds
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
         });
-    @else
-        // Redirect to login if not authenticated
-        if (confirm('Please login to add products to cart. Would you like to go to the login page?')) {
-            window.location.href = '{{ route("login") }}';
-        }
-    @endauth
-}
+    });
 
-// Login required function for demo products
-function loginRequired() {
-    if (confirm('Please login to add products to cart. Would you like to go to the login page?')) {
-        window.location.href = '{{ route("login") }}';
+    // Load cart count on page load
+    @auth
+        @if(!auth()->user()->isAdmin())
+            updateCartCount();
+        @endif
+    @endauth
+
+    // Auto-hide toast notifications
+    const successAlert = document.getElementById('successAlert');
+    const errorAlert = document.getElementById('errorAlert');
+    
+    if (successAlert) {
+        setTimeout(() => {
+            successAlert.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => successAlert.remove(), 300);
+        }, 4000);
     }
-}
+    
+    if (errorAlert) {
+        setTimeout(() => {
+            errorAlert.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => errorAlert.remove(), 300);
+        }, 5000);
+    }
+});
 
 // Update cart count function
 function updateCartCount() {
@@ -251,22 +282,23 @@ function updateCartCount() {
             .then(data => {
                 const cartCountElements = document.querySelectorAll('.cart-count');
                 cartCountElements.forEach(element => {
-                    element.textContent = data.count || 0;
+                    const count = data.count || 0;
+                    if (count > 0) {
+                        element.textContent = count;
+                        element.style.display = 'flex';
+                    } else {
+                        element.style.display = 'none';
+                    }
                 });
             })
             .catch(error => {
                 console.error('Error updating cart count:', error);
+                const cartCountElements = document.querySelectorAll('.cart-count');
+                cartCountElements.forEach(element => {
+                    element.style.display = 'none';
+                });
             });
     @endauth
 }
-
-// Load cart count on page load
-document.addEventListener('DOMContentLoaded', function() {
-    @auth
-        @if(!auth()->user()->isAdmin())
-            updateCartCount();
-        @endif
-    @endauth
-});
 </script>
 @endsection

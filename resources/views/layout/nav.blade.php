@@ -24,7 +24,7 @@
                     <svg width="20" height="20" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                     </svg>
-                    <span class="wishlist-count">0</span>
+                    <span class="wishlist-count" style="display: none;">0</span>
                 </a>
                 @endif
             @else
@@ -32,7 +32,7 @@
                     <svg width="20" height="20" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                     </svg>
-                    <span class="wishlist-count">0</span>
+                    <span class="wishlist-count" style="display: none;">0</span>
                 </a>
             @endauth
 
@@ -43,7 +43,7 @@
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
                     </svg>
-                    <span class="cart-count">0</span>
+                    <span class="cart-count" style="display: none;">0</span>
                 </a>
                 @endif
             @else
@@ -51,7 +51,7 @@
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
                     </svg>
-                    <span class="cart-count">0</span>
+                    <span class="cart-count" style="display: none;">0</span>
                 </a>
             @endauth
 
@@ -136,11 +136,21 @@
             .then(data => {
                 const cartCountElements = document.querySelectorAll('.cart-count');
                 cartCountElements.forEach(element => {
-                    element.textContent = data.count || 0;
+                    const count = data.count || 0;
+                    if (count > 0) {
+                        element.textContent = count;
+                        element.style.display = 'flex';
+                    } else {
+                        element.style.display = 'none';
+                    }
                 });
             })
             .catch(error => {
                 console.error('Error loading cart count:', error);
+                const cartCountElements = document.querySelectorAll('.cart-count');
+                cartCountElements.forEach(element => {
+                    element.style.display = 'none';
+                });
             });
     }
 
@@ -151,15 +161,21 @@
             .then(data => {
                 const wishlistCountElements = document.querySelectorAll('.wishlist-count');
                 wishlistCountElements.forEach(element => {
-                    element.textContent = data.count || 0;
+                    const count = data.count || 0;
+                    if (count > 0) {
+                        element.textContent = count;
+                        element.style.display = 'flex';
+                    } else {
+                        element.style.display = 'none';
+                    }
                 });
             })
             .catch(error => {
                 console.error('Error loading wishlist count:', error);
-                // Fallback to 0 if there's an error
+                // Hide badges if there's an error
                 const wishlistCountElements = document.querySelectorAll('.wishlist-count');
                 wishlistCountElements.forEach(element => {
-                    element.textContent = '0';
+                    element.style.display = 'none';
                 });
             });
     }

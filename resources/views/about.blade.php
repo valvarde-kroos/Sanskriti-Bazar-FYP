@@ -88,8 +88,8 @@
             <div class="why-choose-grid">
                 <!-- Quality Guaranteed -->
                 <div class="why-choose-card">
-                    <div class="card-icon blue-icon">
-                        <i class="fas fa-shield-alt"></i>
+                    <div class="card-icon ">
+                        
                     </div>
                     <h4 class="card-title">Quality guaranteed</h4>
                     <p class="card-description">Every instrument is thoroughly checked for quality and sound authenticity.</p>
@@ -97,8 +97,8 @@
 
                 <!-- Support Local Artists -->
                 <div class="why-choose-card">
-                    <div class="card-icon green-icon">
-                        <i class="fas fa-users"></i>
+                    <div class="card-icon ">
+
                     </div>
                     <h4 class="card-title">Support local artists</h4>
                     <p class="card-description">Your purchase directly helps Nepali artisans and their families.</p>
@@ -106,8 +106,8 @@
 
                 <!-- Secure Shopping -->
                 <div class="why-choose-card">
-                    <div class="card-icon orange-icon">
-                        <i class="fas fa-credit-card"></i>
+                    <div class="card-icon">
+              
                     </div>
                     <h4 class="card-title">Secure shopping</h4>
                     <p class="card-description">Safe and secure payment options with full buyer guarantees.</p>
@@ -115,8 +115,7 @@
 
                 <!-- Customer Support -->
                 <div class="why-choose-card">
-                    <div class="card-icon gray-icon">
-                        <i class="fas fa-comments"></i>
+                    <div class="card-icon ">   
                     </div>
                     <h4 class="card-title">Customer support</h4>
                     <p class="card-description">Friendly service to help you find the perfect instrument.</p>
@@ -124,14 +123,7 @@
             </div>
         </div>
 
-        <!-- Call to Action -->
-        <div class="about-cta">
-            <h2>Ready to Explore Our Collection?</h2>
-            <p>Discover authentic Nepali musical instruments and be part of preserving our cultural heritage.</p>
-            <div class="cta-buttons">
-                <a href="{{ route('shop.index') }}" class="btn-primary">Browse Instruments</a>
-                <a href="{{ route('contact') }}" class="btn-secondary">Contact Us</a>
-            </div>
+    
         </div>
     </div>
 </section>
@@ -139,7 +131,7 @@
 <style>
 /* ABOUT PAGE STYLES */
 .about-hero-section {
-    background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
+    background: #253A4E;
     color: black;
     padding: 120px 0 80px;
     text-align: center;
@@ -157,6 +149,7 @@
     opacity: 0.9;
     max-width: 600px;
     margin: 0 auto;
+    color: white;
 }
 
 .about-content-section {

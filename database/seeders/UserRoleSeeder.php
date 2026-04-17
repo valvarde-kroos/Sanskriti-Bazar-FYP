@@ -17,8 +17,8 @@ class UserRoleSeeder extends Seeder
         // Create Admin User
         User::create([
             'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'phone' => '1234567890',
+            'email' => 'grgprabesh888@gmail.com',
+            'phone' => '9816618275',
             'role' => 'admin',
             'password' => Hash::make('password'),
             'email_verified_at' => now(),
@@ -27,7 +27,7 @@ class UserRoleSeeder extends Seeder
         // Create Vendor User
         User::create([
             'name' => 'Vendor User',
-            'email' => 'vendor@example.com',
+            'email' => 'vendor@gmail.com',
             'phone' => '9876543210',
             'role' => 'vendor',
             'password' => Hash::make('password'),

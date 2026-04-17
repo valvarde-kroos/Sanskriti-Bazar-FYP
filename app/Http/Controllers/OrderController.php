@@ -6,11 +6,20 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Cart;
 use App\Models\Product;
+use App\Services\EsewaService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
+    protected $esewaService;
+
+    public function __construct()
+    {
+        $this->esewaService = new EsewaService();
+    }
+
     public function showCheckout()
     {
         // Check if user is authenticated
@@ -95,9 +104,16 @@ class OrderController extends Controller
             return redirect()->route('cart')->with('error', 'Your cart is empty.');
         }
 
+        // Calculate total amount
+        $totalAmount = $cartItems->sum(function($item) {
+            return ($item->product->price ?? 0) * $item->quantity;
+        });
+
         DB::beginTransaction();
         
         try {
+            $orders = [];
+            
             foreach ($cartItems as $item) {
                 $product = $item->product;
                 
@@ -108,37 +124,137 @@ class OrderController extends Controller
                 }
 
                 // Create order
-                Order::create([
+                $order = Order::create([
                     'user_id' => Auth::id(),
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
                     'total_price' => ($product->price ?? 0) * $item->quantity,
-                    'status' => 'pending',
+                    'status' => $request->payment_method === 'esewa' ? 'pending_payment' : 'pending',
                     'shipping_name' => $request->shipping_name,
                     'shipping_address' => $request->shipping_address,
                     'shipping_phone' => $request->shipping_phone,
                     'payment_method' => $request->payment_method,
+                    'payment_status' => $request->payment_method === 'esewa' ? 'pending' : 'not_required',
                 ]);
 
-                // Update product stock
-                $product->decrement('quantity', $item->quantity);
+                $orders[] = $order;
 
-                // Remove from cart
+                // Update product stock only for cash on delivery
+                if ($request->payment_method === 'cash_on_delivery') {
+                    $product->decrement('quantity', $item->quantity);
+                }
+            }
+
+            // Handle eSewa payment - DON'T clear cart yet
+            if ($request->payment_method === 'esewa') {
+                // Store cart items and order info in session for payment processing
+                session([
+                    'pending_orders' => collect($orders)->pluck('id')->toArray(),
+                    'cart_items_for_payment' => $cartItems->toArray(),
+                    'payment_total_amount' => $totalAmount
+                ]);
+                
+                DB::commit();
+                
+                // Redirect to PaymentController for eSewa processing
+                return redirect()->route('payment.initiate.cart')->with([
+                    'total_amount' => $totalAmount,
+                    'order_ids' => collect($orders)->pluck('id')->toArray()
+                ]);
+            }
+
+            // For cash on delivery - clear cart and complete order
+            foreach ($cartItems as $item) {
                 $item->delete();
             }
 
             DB::commit();
-
-            $successMessage = $request->payment_method === 'esewa' 
-                ? 'Order placed successfully! You will be redirected to eSewa for payment.' 
-                : 'Order placed successfully! We will contact you soon for delivery.';
-
-            return redirect()->route('order.success')->with('success', $successMessage);
+            return redirect()->route('order.success')->with('success', 'Order placed successfully! We will contact you soon for delivery.');
 
         } catch (\Exception $e) {
             DB::rollBack();
+            Log::error('Order placement error: ' . $e->getMessage());
+            Log::error('Order placement stack trace: ' . $e->getTraceAsString());
             return redirect()->route('checkout')->with('error', 'Something went wrong. Please try again.');
         }
+    }
+
+    public function esewaSuccess(Request $request)
+    {
+        try {
+            $orderId = session('esewa_order_id');
+            $pendingOrders = session('pending_orders', []);
+            
+            if (!$orderId || empty($pendingOrders)) {
+                return redirect()->route('cart')->with('error', 'Invalid payment session.');
+            }
+
+            // Get payment details from eSewa response
+            $refId = $request->get('refId');
+            $amount = $request->get('amt');
+            
+            if (!$refId || !$amount) {
+                return redirect()->route('checkout')->with('error', 'Payment verification failed. Please try again.');
+            }
+
+            // Verify payment with eSewa
+            $isVerified = $this->esewaService->verifyPayment($orderId, $amount, $refId);
+            
+            if ($isVerified) {
+                DB::beginTransaction();
+                
+                try {
+                    // Update orders and reduce stock
+                    foreach ($pendingOrders as $orderIdDb) {
+                        $order = Order::find($orderIdDb);
+                        if ($order) {
+                            $order->update([
+                                'status' => 'pending',
+                                'payment_status' => 'paid',
+                                'esewa_ref_id' => $refId
+                            ]);
+                            
+                            // Reduce product stock
+                            $order->product->decrement('quantity', $order->quantity);
+                        }
+                    }
+                    
+                    DB::commit();
+                    
+                    // Clear session
+                    session()->forget(['esewa_order_id', 'pending_orders']);
+                    
+                    return redirect()->route('order.success')->with('success', 'Payment successful! Your order has been confirmed.');
+                    
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    Log::error('eSewa success processing error: ' . $e->getMessage());
+                    return redirect()->route('checkout')->with('error', 'Payment was successful but order processing failed. Please contact support.');
+                }
+            } else {
+                return redirect()->route('checkout')->with('error', 'Payment verification failed. Please try again.');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('eSewa success error: ' . $e->getMessage());
+            return redirect()->route('checkout')->with('error', 'Payment processing error. Please contact support.');
+        }
+    }
+
+    public function esewaFailure(Request $request)
+    {
+        // Clean up pending orders if payment failed
+        $pendingOrders = session('pending_orders', []);
+        
+        if (!empty($pendingOrders)) {
+            // Delete pending orders since payment failed
+            Order::whereIn('id', $pendingOrders)->delete();
+        }
+        
+        // Clear session
+        session()->forget(['esewa_order_id', 'pending_orders']);
+        
+        return redirect()->route('checkout')->with('error', 'Payment was cancelled or failed. Please try again.');
     }
 
     public function orderSuccess()

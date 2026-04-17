@@ -4,8 +4,17 @@
 <div class="signup-wrapper">
     <div class="signup-card">
         <div class="signup-left">
-            <h1>Welcome Back!</h1>
-            <p>Login to access your account and explore products.</p>
+            @php
+                $role = request()->get('role', 'customer');
+                $leftPanelText = [
+                    'admin' => ['title' => 'Admin Portal', 'description' => 'Access your administrative dashboard and manage the marketplace.'],
+                    'vendor' => ['title' => 'Vendor Panel', 'description' => 'Login to manage your products, orders and grow your business.'],
+                    'customer' => ['title' => 'Welcome Back!', 'description' => 'Login to access your account and explore products.']
+                ];
+                $currentText = $leftPanelText[$role] ?? $leftPanelText['customer'];
+            @endphp
+            <h1>{{ $currentText['title'] }}</h1>
+            <p>{{ $currentText['description'] }}</p>
         </div>
 
         <div class="signup-right">
@@ -41,6 +50,10 @@
                 <button type="submit" class="signup-submit">Login</button>
             </form>
 
+            <p class="forgot-password-link">
+                <a href="{{ route('forgot-password') }}">Forgot Password?</a>
+            </p>
+
             <p>Don't have an account? <a href="{{ route('signup') }}">Sign Up</a></p>
         </div>
     </div>
@@ -56,6 +69,24 @@
         border: 1px solid #93c5fd;
         font-size: 14px;
         text-align: center;
+    }
+
+    .forgot-password-link {
+        text-align: center;
+        margin: 15px 0 20px 0;
+        font-size: 14px;
+    }
+
+    .forgot-password-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+
+    .forgot-password-link a:hover {
+        color: #764ba2;
+        text-decoration: underline;
     }
 </style>
 @endsection

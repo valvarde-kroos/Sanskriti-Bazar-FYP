@@ -21,12 +21,14 @@
                 
                 @if(session('success'))
                     <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
                         {{ session('success') }}
                     </div>
                 @endif
 
                 @if(session('error'))
                     <div class="alert alert-error">
+                        <i class="fas fa-exclamation-triangle"></i>
                         {{ session('error') }}
                     </div>
                 @endif
@@ -98,7 +100,7 @@
                         </div>
                         <div class="contact-text">
                             <span class="contact-label">Email</span>
-                            <span class="contact-value">sanskriti@bazar.com</span>
+                            <span class="contact-value">sanskritibazar@gmail.com/ grgprabesh888@gmail.com</span>
                         </div>
                     </div>
 
@@ -109,40 +111,12 @@
                         </div>
                         <div class="contact-text">
                             <span class="contact-label">Location</span>
-                            <span class="contact-value">Thamel, Kathmandu</span>
+                            <span class="contact-value">Mahendrapool, Pokhara</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Business Hours -->
-                <div class="business-hours">
-                    <h3 class="hours-title">Business hours</h3>
-                    <div class="hours-list">
-                        <div class="hours-item">
-                            <span class="day">Sunday – Friday</span>
-                            <span class="time">10:00am – 6:00pm</span>
-                        </div>
-                        <div class="hours-item">
-                            <span class="day">Saturday</span>
-                            <span class="time closed">Closed</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Follow Us -->
-                <div class="social-section">
-                    <h3 class="social-title">Follow us</h3>
-                    <div class="social-buttons">
-                        <a href="#" class="social-btn facebook-btn">
-                            <i class="fab fa-facebook-f"></i>
-                            <span>Facebook</span>
-                        </a>
-                        <a href="#" class="social-btn instagram-btn">
-                            <i class="fab fa-instagram"></i>
-                            <span>Instagram</span>
-                        </a>
-                    </div>
-                </div>
+               
             </div>
         </div>
     </div>
@@ -151,7 +125,7 @@
 <style>
 /* CONTACT PAGE STYLES */
 .contact-hero-section {
-    background: linear-gradient(135deg, rgba(102,126,234,0.8) 0%, rgba(118,75,162,0.8) 100%);
+    background: #253A4E;
     color: white;
     padding: 100px 0 60px;
     text-align: center;
@@ -427,11 +401,18 @@
 
 /* Alert Styles */
 .alert {
-    padding: 12px 16px;
+    padding: 16px 20px;
     border-radius: 8px;
     margin-bottom: 1.5rem;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert i {
+    font-size: 1.1rem;
 }
 
 .alert-success {
@@ -440,10 +421,18 @@
     border: 1px solid #a7f3d0;
 }
 
+.alert-success i {
+    color: #10b981;
+}
+
 .alert-error {
     background: #fee2e2;
     color: #991b1b;
     border: 1px solid #fca5a5;
+}
+
+.alert-error i {
+    color: #ef4444;
 }
 
 .error-text {

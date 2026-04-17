@@ -218,7 +218,12 @@ class VendorController extends Controller
         ->latest()
         ->get();
 
-        return view('vendor.reviews', compact('reviews'));
+        // Get all vendor's products for the filter dropdown
+        $products = Product::where('user_id', $vendor->id)
+            ->orderBy('post_title')
+            ->get();
+
+        return view('vendor.reviews', compact('reviews', 'products'));
     }
 
     public function storeProduct(Request $request)
@@ -420,5 +425,194 @@ class VendorController extends Controller
         ]);
 
         return back()->with('success', 'Password changed successfully!');
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->get('query');
+        $vendor = auth()->user();
+        
+        \Log::info('Vendor search called', ['query' => $query, 'vendor_id' => $vendor->id]); // Debug log
+        
+        if (empty($query)) {
+            return response()->json([]);
+        }
+
+        $results = [];
+
+        try {
+            // Search products
+            $products = Product::where('user_id', $vendor->id)
+                ->where(function($q) use ($query) {
+                    $q->where('post_title', 'LIKE', "%{$query}%")
+                      ->orWhere('post_description', 'LIKE', "%{$query}%");
+                })
+                ->limit(5)
+                ->get();
+
+            foreach ($products as $product) {
+                $results[] = [
+                    'type' => 'product',
+                    'title' => $product->post_title,
+                    'description' => 'Product - Rs. ' . number_format($product->price ?? 0) . ' (Stock: ' . ($product->quantity ?? 0) . ')',
+                    'url' => route('vendor.products') . '#product-' . $product->id
+                ];
+            }
+
+            // Search orders
+            $orders = Order::whereHas('product', function($q) use ($vendor) {
+                    $q->where('user_id', $vendor->id);
+                })
+                ->where(function($q) use ($query) {
+                    $q->where('id', 'LIKE', "%{$query}%")
+                      ->orWhereHas('user', function($userQuery) use ($query) {
+                          $userQuery->where('name', 'LIKE', "%{$query}%");
+                      })
+                      ->orWhereHas('product', function($productQuery) use ($query) {
+                          $productQuery->where('post_title', 'LIKE', "%{$query}%");
+                      });
+                })
+                ->with(['user', 'product'])
+                ->limit(5)
+                ->get();
+
+            foreach ($orders as $order) {
+                $results[] = [
+                    'type' => 'order',
+                    'title' => 'Order #' . $order->id,
+                    'description' => 'Customer: ' . $order->user->name . ' - Rs. ' . number_format($order->total_price) . ' (' . ucfirst($order->status) . ')',
+                    'url' => route('vendor.orders') . '#order-' . $order->id
+                ];
+            }
+
+            // If searching for specific terms, add navigation shortcuts
+            $searchLower = strtolower($query);
+            if (strpos($searchLower, 'product') !== false || strpos($searchLower, 'manage') !== false) {
+                $results[] = [
+                    'type' => 'navigation',
+                    'title' => 'Manage Products',
+                    'description' => 'Go to Products page to manage your inventory',
+                    'url' => route('vendor.products')
+                ];
+            }
+            
+            if (strpos($searchLower, 'order') !== false) {
+                $results[] = [
+                    'type' => 'navigation',
+                    'title' => 'View Orders',
+                    'description' => 'Go to Orders page to manage customer orders',
+                    'url' => route('vendor.orders')
+                ];
+            }
+            
+            if (strpos($searchLower, 'dashboard') !== false || strpos($searchLower, 'home') !== false) {
+                $results[] = [
+                    'type' => 'navigation',
+                    'title' => 'Dashboard',
+                    'description' => 'Go to main dashboard overview',
+                    'url' => route('vendor.dashboard')
+                ];
+            }
+
+            \Log::info('Search results', ['count' => count($results)]); // Debug log
+            
+        } catch (\Exception $e) {
+            \Log::error('Search error', ['error' => $e->getMessage()]); // Debug log
+            return response()->json(['error' => 'Search failed'], 500);
+        }
+
+        return response()->json($results);
+    }
+
+    public function getNotifications()
+    {
+        $vendor = auth()->user();
+        
+        \Log::info('Vendor notifications called', ['vendor_id' => $vendor->id]); // Debug log
+        
+        $notifications = [];
+
+        try {
+            // Get recent orders (last 24 hours)
+            $recentOrders = Order::whereHas('product', function($q) use ($vendor) {
+                    $q->where('user_id', $vendor->id);
+                })
+                ->where('created_at', '>=', now()->subDay())
+                ->with(['user', 'product'])
+                ->latest()
+                ->limit(5)
+                ->get();
+
+            foreach ($recentOrders as $order) {
+                $notifications[] = [
+                    'type' => 'order',
+                    'icon' => 'fas fa-shopping-cart',
+                    'title' => 'New Order Received',
+                    'description' => 'Order #' . $order->id . ' from ' . $order->user->name,
+                    'time' => $order->created_at->diffForHumans(),
+                    'unread' => true
+                ];
+            }
+
+            // Get low stock products
+            $lowStockProducts = Product::where('user_id', $vendor->id)
+                ->where('quantity', '<=', 5)
+                ->where('quantity', '>', 0)
+                ->limit(3)
+                ->get();
+
+            foreach ($lowStockProducts as $product) {
+                $notifications[] = [
+                    'type' => 'stock',
+                    'icon' => 'fas fa-box',
+                    'title' => 'Low Stock Alert',
+                    'description' => $product->post_title . ' inventory is running low (' . $product->quantity . ' left)',
+                    'time' => 'Stock alert',
+                    'unread' => true
+                ];
+            }
+
+            // Get completed orders (last 7 days)
+            $completedOrders = Order::whereHas('product', function($q) use ($vendor) {
+                    $q->where('user_id', $vendor->id);
+                })
+                ->where('status', 'completed')
+                ->where('updated_at', '>=', now()->subWeek())
+                ->with(['user', 'product'])
+                ->latest()
+                ->limit(3)
+                ->get();
+
+            foreach ($completedOrders as $order) {
+                $notifications[] = [
+                    'type' => 'success',
+                    'icon' => 'fas fa-check-circle',
+                    'title' => 'Order Completed',
+                    'description' => 'Order #' . $order->id . ' has been delivered',
+                    'time' => $order->updated_at->diffForHumans(),
+                    'unread' => false
+                ];
+            }
+
+            // Sort by time (most recent first)
+            usort($notifications, function($a, $b) {
+                if ($a['type'] === 'stock') return 1;
+                if ($b['type'] === 'stock') return -1;
+                return 0;
+            });
+
+            $unreadCount = count(array_filter($notifications, function($n) { return $n['unread']; }));
+            
+            \Log::info('Notifications loaded', ['count' => count($notifications), 'unread' => $unreadCount]); // Debug log
+
+            return response()->json([
+                'notifications' => array_slice($notifications, 0, 10),
+                'unread_count' => $unreadCount
+            ]);
+            
+        } catch (\Exception $e) {
+            \Log::error('Notifications error', ['error' => $e->getMessage()]); // Debug log
+            return response()->json(['error' => 'Failed to load notifications'], 500);
+        }
     }
 }

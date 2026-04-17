@@ -49,7 +49,7 @@ class ShopController extends Controller
                 break;
         }
         
-        $products = $query->paginate(12);
+        $products = $query->get();
         $categories = Category::orderBy('categoryName')->get();
         
         return view('shop', compact('products', 'categories'));

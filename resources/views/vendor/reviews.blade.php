@@ -21,9 +21,19 @@
         <div class="filter-group">
             <label for="productFilter" class="form-label">Filter by Product:</label>
             <select class="form-control" id="productFilter" onchange="filterReviews()">
-                <option value="">All Products</option>
-                @foreach($reviews->groupBy('product.post_title') as $productName => $productReviews)
-                    <option value="{{ $productName }}">{{ $productName }}</option>
+                <option value="">All Products ({{ $products->count() }} total)</option>
+                @foreach($products as $product)
+                    @php
+                        $reviewCount = $reviews->where('product.id', $product->id)->count();
+                    @endphp
+                    <option value="{{ $product->post_title }}">
+                        {{ $product->post_title }} 
+                        @if($reviewCount > 0)
+                            ({{ $reviewCount }} review{{ $reviewCount > 1 ? 's' : '' }})
+                        @else
+                            (No reviews)
+                        @endif
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -37,6 +47,12 @@
                 <option value="2">2 Stars</option>
                 <option value="1">1 Star</option>
             </select>
+        </div>
+        <div class="filter-group">
+            <label class="form-label">&nbsp;</label>
+            <button type="button" class="btn btn-secondary" onclick="resetFilters()">
+                <i class="fas fa-undo"></i> Reset Filters
+            </button>
         </div>
     </div>
 </div>
@@ -314,6 +330,7 @@
         const cards = document.querySelectorAll('.review-card');
         
         let visibleCount = 0;
+        let totalCards = cards.length;
         
         cards.forEach(card => {
             const cardProduct = card.getAttribute('data-product');
@@ -339,7 +356,47 @@
             }
         });
         
-        console.log(`Showing ${visibleCount} reviews`);
+        // Update the review count display
+        const reviewCountElement = document.querySelector('.review-count');
+        if (reviewCountElement) {
+            if (productFilter || ratingFilter) {
+                reviewCountElement.textContent = `Showing ${visibleCount} of ${totalCards} reviews`;
+            } else {
+                reviewCountElement.textContent = `Total Reviews: ${totalCards}`;
+            }
+        }
+        
+        // Show message if no reviews match the filter
+        const reviewsGrid = document.querySelector('.reviews-grid');
+        const noResultsMessage = document.getElementById('noFilterResults');
+        
+        if (visibleCount === 0 && totalCards > 0) {
+            if (!noResultsMessage) {
+                const message = document.createElement('div');
+                message.id = 'noFilterResults';
+                message.className = 'no-reviews';
+                message.innerHTML = `
+                    <h3>No Reviews Match Your Filter</h3>
+                    <p>Try adjusting your filter criteria to see more reviews.</p>
+                `;
+                reviewsGrid.parentNode.appendChild(message);
+            }
+            if (reviewsGrid) reviewsGrid.style.display = 'none';
+        } else {
+            if (noResultsMessage) {
+                noResultsMessage.remove();
+            }
+            if (reviewsGrid) reviewsGrid.style.display = 'grid';
+        }
+        
+        console.log(`Filter applied - Product: "${productFilter}", Rating: "${ratingFilter}", Showing: ${visibleCount}/${totalCards}`);
+    }
+
+    // Reset filters function
+    function resetFilters() {
+        document.getElementById('productFilter').value = '';
+        document.getElementById('ratingFilter').value = '';
+        filterReviews();
     }
 
     // Initialize the page when it loads

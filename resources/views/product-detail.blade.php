@@ -108,6 +108,23 @@
                                 </button>
                             </form>
 
+                            <!-- eSewa Payment Button -->
+                            <form action="{{ route('payment.initiate') }}" method="POST" id="esewaPaymentForm">
+                                @csrf
+                                <!-- Hidden field: which product to pay for -->
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <!-- Hidden field: amount to pay -->
+                                <input type="hidden" name="amount" value="{{ $product->price ?? 0 }}" id="esewaAmount">
+                                <!-- eSewa Payment Button -->
+                                <button type="submit" class="btn-esewa-pay">
+                                    <!-- eSewa logo icon -->
+                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                    </svg>
+                                    Pay with eSewa
+                                </button>
+                            </form>
+
                             <button type="button" class="btn-wishlist-detail {{ $isLiked ? 'active' : '' }}" onclick="toggleWishlist({{ $product->id }}, this)">
                                 <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
@@ -314,3 +331,78 @@ function showMessage(message, type) {
 }
 </script>
 @endsection
+
+<script>
+// JavaScript for quantity controls and eSewa payment amount update
+
+// Function to increase quantity
+function increaseQuantity() {
+    const quantityInput = document.getElementById('quantity');
+    const maxQuantity = parseInt(quantityInput.getAttribute('max'));
+    let currentQuantity = parseInt(quantityInput.value);
+    
+    // Increase quantity if not at maximum
+    if (currentQuantity < maxQuantity) {
+        currentQuantity++;
+        quantityInput.value = currentQuantity;
+        
+        // Update hidden quantity fields for forms
+        document.getElementById('cartQuantity').value = currentQuantity;
+        document.getElementById('buyQuantity').value = currentQuantity;
+        
+        // Update eSewa payment amount (quantity × product price)
+        updateEsewaAmount();
+    }
+}
+
+// Function to decrease quantity
+function decreaseQuantity() {
+    const quantityInput = document.getElementById('quantity');
+    let currentQuantity = parseInt(quantityInput.value);
+    
+    // Decrease quantity if greater than 1
+    if (currentQuantity > 1) {
+        currentQuantity--;
+        quantityInput.value = currentQuantity;
+        
+        // Update hidden quantity fields for forms
+        document.getElementById('cartQuantity').value = currentQuantity;
+        document.getElementById('buyQuantity').value = currentQuantity;
+        
+        // Update eSewa payment amount (quantity × product price)
+        updateEsewaAmount();
+    }
+}
+
+// Function to update eSewa payment amount based on quantity
+function updateEsewaAmount() {
+    const quantity = parseInt(document.getElementById('quantity').value);
+    const productPrice = {{ $product->price ?? 0 }}; // Get product price from PHP
+    const totalAmount = quantity * productPrice;
+    
+    // Update the hidden eSewa amount field
+    document.getElementById('esewaAmount').value = totalAmount;
+    
+    // Optional: Update button text to show total amount
+    const esewaButton = document.querySelector('.btn-esewa-pay');
+    if (esewaButton) {
+        esewaButton.innerHTML = `
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            Pay Rs. ${totalAmount.toLocaleString()} with eSewa
+        `;
+    }
+}
+
+// Function to toggle wishlist (existing function - keeping it)
+function toggleWishlist(productId, button) {
+    // Add your existing wishlist toggle code here
+    console.log('Wishlist toggle for product:', productId);
+}
+
+// Initialize eSewa amount when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateEsewaAmount();
+});
+</script>

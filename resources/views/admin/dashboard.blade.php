@@ -69,6 +69,37 @@
         </div>
     </div>
 </div>
+
+<!-- Notification Test Section (for development) -->
+<div class="notification-test-section">
+    <div class="test-card">
+        <h3>🔔 Test Notification System</h3>
+        <p>Click the buttons below to test different notification types:</p>
+        <div class="test-buttons">
+            <button onclick="testCustomerNotification()" class="test-btn customer-btn">
+                🟢 Add Customer Notification
+            </button>
+            <button onclick="testVendorNotification()" class="test-btn vendor-btn">
+                🟣 Add Vendor Notification
+            </button>
+            <button onclick="testOrderNotification()" class="test-btn order-btn">
+                🔵 Add Order Notification
+            </button>
+            <button onclick="testCategoryNotification()" class="test-btn category-btn">
+                🟡 Add Category Notification
+            </button>
+        </div>
+        <p class="test-note">
+            <strong>Instructions:</strong> Click any button above, then check the bell icon (🔔) in the top-right header. 
+            The red badge should appear with the notification count. Click the bell to open the dropdown.
+            <br><br>
+            <strong>Profile Dropdown Test:</strong> Click on "Prabesh Gurung" in the top-right to test profile dropdown links:
+            <br>• View Profile → <a href="{{ route('admin.profile') }}" target="_blank">{{ route('admin.profile') }}</a>
+            <br><br>
+            <strong>Debug:</strong> Open browser console (F12) to see detailed logs of all button clicks and functionality.
+        </p>
+    </div>
+</div>
 @endsection
 
 @section('styles')
@@ -244,6 +275,85 @@
         .dashboard-header {
             padding: 1rem 0;
         }
+    }
+
+    /* Notification Test Section */
+    .notification-test-section {
+        margin-top: 2rem;
+    }
+
+    .test-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #7C3AED;
+    }
+
+    .test-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0 0 1rem 0;
+    }
+
+    .test-card p {
+        color: #6b7280;
+        margin: 0 0 1.5rem 0;
+        line-height: 1.5;
+    }
+
+    .test-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .test-btn {
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 14px;
+        color: white;
+    }
+
+    .customer-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .vendor-btn {
+        background: linear-gradient(135deg, #7C3AED 0%, #6d28d9 100%);
+    }
+
+    .order-btn {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .category-btn {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .test-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .test-note {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        font-size: 14px;
+        color: #475569;
+        margin: 0;
+    }
+
+    .test-note strong {
+        color: #1e293b;
     }
 </style>
 

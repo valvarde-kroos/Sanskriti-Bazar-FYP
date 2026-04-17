@@ -27,7 +27,7 @@
             --gray-700: #374151;
             --gray-800: #1f2937;
             --gray-900: #111827;
-            --sidebar-width: 250px;
+            --sidebar-width: 280px;
             --header-height: 64px;
             --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -153,13 +153,13 @@
     <script>
         // Mobile Sidebar Toggle
         function toggleMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
+            const sidebar = document.getElementById('adminSidebar');
             sidebar.classList.toggle('mobile-open');
         }
 
         // Close sidebar when clicking outside on mobile
         document.addEventListener('click', function(e) {
-            const sidebar = document.getElementById('sidebar');
+            const sidebar = document.getElementById('adminSidebar');
             const toggleBtn = document.querySelector('.mobile-menu-toggle');
             
             if (window.innerWidth <= 1024 && 
