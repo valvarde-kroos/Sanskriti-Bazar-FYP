@@ -381,8 +381,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/esewa/failure', [OrderController::class, 'esewaFailure'])->name('esewa.failure');
         
         // New eSewa Payment Routes using PaymentController
-        Route::post('/payment/initiate', [PaymentController::class, 'initiatePayment'])->name('payment.initiate');
-        Route::match(['GET', 'POST'], '/payment/initiate-cart', [PaymentController::class, 'initiateCartPayment'])->name('payment.initiate.cart');
+        Route::post('esewa/pay', [PaymentController::class, 'pay'])->name('esewa.pay');
+        Route::get('esewa/check', [PaymentController::class, 'check'])->name('esewa.check');
         Route::get('/payment/success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
         Route::get('/payment/failure', [PaymentController::class, 'paymentFailure'])->name('payment.failure');
     });

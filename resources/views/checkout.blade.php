@@ -26,7 +26,7 @@
                     <div class="form-container">
                         <h2 class="form-title">Shipping Information</h2>
                         
-                        <form action="{{ route('order.place') }}" method="POST" id="checkoutForm">
+                        <form action="{{ route('esewa.pay') }}" method="POST" id="checkoutForm">
                             @csrf
                             
                             <div class="form-group">
