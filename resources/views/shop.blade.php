@@ -68,6 +68,16 @@
                                         <i class="fas fa-music"></i>
                                     </div>
                                 @endif
+                                
+                                <!-- Wishlist Heart Button -->
+                                @auth
+                                    @php
+                                        $inWishlist = \App\Models\Wishlist::isInWishlist(auth()->id(), $product->id);
+                                    @endphp
+                                    <div class="wishlist-heart-container">
+                                        <x-wishlist-heart :product-id="$product->id" :in-wishlist="$inWishlist" size="md" />
+                                    </div>
+                                @endauth
                             </div>
                             
                             <div class="product-details">
@@ -256,6 +266,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+}
+
+/* Wishlist Heart Container */
+.wishlist-heart-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
 }
 
 .product-image {

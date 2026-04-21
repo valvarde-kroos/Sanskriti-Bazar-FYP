@@ -36,6 +36,25 @@
                 </a>
             @endauth
 
+            <!-- Notification Icon -->
+            @auth
+                @if(!auth()->user()->isAdmin())
+                <a href="{{ route('customer.notifications') }}" class="action-icon notification-icon">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <span class="notification-count" style="display: none;">0</span>
+                </a>
+                @endif
+            @else
+                <a href="{{ route('login') }}" class="action-icon notification-icon">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                    <span class="notification-count" style="display: none;">0</span>
+                </a>
+            @endauth
+
             <!-- Cart Icon -->
             @auth
                 @if(!auth()->user()->isAdmin())
@@ -125,6 +144,7 @@
             @if(!auth()->user()->isAdmin())
                 loadCartCount();
                 loadWishlistCount();
+                loadNotificationCount();
             @endif
         @endauth
     });
@@ -182,4 +202,29 @@
 
     // Make loadWishlistCount globally available
     window.loadWishlistCount = loadWishlistCount;
+
+    // Load notification count function
+    function loadNotificationCount() {
+        fetch('/customer/notifications/count')
+            .then(response => response.json())
+            .then(data => {
+                const notificationCountElements = document.querySelectorAll('.notification-count');
+                notificationCountElements.forEach(element => {
+                    const count = data.count || 0;
+                    if (count > 0) {
+                        element.textContent = count;
+                        element.style.display = 'flex';
+                    } else {
+                        element.style.display = 'none';
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading notification count:', error);
+                const notificationCountElements = document.querySelectorAll('.notification-count');
+                notificationCountElements.forEach(element => {
+                    element.style.display = 'none';
+                });
+            });
+    }
 </script>

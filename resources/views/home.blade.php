@@ -100,6 +100,16 @@
                             <i class="fas fa-music"></i>
                         </div>
                     @endif
+                    
+                    <!-- Wishlist Heart Button -->
+                    @auth
+                        @php
+                            $inWishlist = \App\Models\Wishlist::isInWishlist(auth()->id(), $product->id);
+                        @endphp
+                        <div class="wishlist-heart-container">
+                            <x-wishlist-heart :product-id="$product->id" :in-wishlist="$inWishlist" size="md" />
+                        </div>
+                    @endauth
                 </div>
                 
                 <div class="product-details">
@@ -211,21 +221,21 @@
 </section>
 
 <!-- CALL TO ACTION SECTION -->
-<section class="cta-section">
-    <div class="container">
-        <div class="cta-content">
-            <h2 class="cta-title">Start Your Cultural Journey Today</h2>
-            <p class="cta-description">
-                Join thousands of customers who trust Sanskriti Bazar for authentic Nepali traditional musical instruments. 
-                Discover unique products and support local vendors.
-            </p>
-            <div class="cta-buttons">
-                <a href="{{ route('shop.index') }}" class="btn-primary">Browse Products</a>
-                <a href="{{ route('contact') }}" class="btn-secondary">Contact Us</a>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- Removed as per user request -->
+
+<style>
+/* Wishlist Heart Container for Home Page */
+.product-image-container {
+    position: relative;
+}
+
+.wishlist-heart-container {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+}
+</style>
 
 <script>
 // Add to cart functionality with loading state

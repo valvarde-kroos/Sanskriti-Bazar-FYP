@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'phone',
         'role',
+        'approval_status',
+        'is_active',
         'shop_name',
         'shop_description',
         'shop_logo',
@@ -80,6 +82,23 @@ public function carts()
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * A user can have many wishlist items
+     */
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Get all products in user's wishlist
+     */
+    public function wishlistProducts()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists', 'user_id', 'product_id')
+                    ->withTimestamps();
     }
 
     /**

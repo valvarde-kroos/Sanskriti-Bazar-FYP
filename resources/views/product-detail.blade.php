@@ -108,23 +108,6 @@
                                 </button>
                             </form>
 
-                            <!-- eSewa Payment Button -->
-                            <form action="{{ route('payment.initiate') }}" method="POST" id="esewaPaymentForm">
-                                @csrf
-                                <!-- Hidden field: which product to pay for -->
-                                <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                <!-- Hidden field: amount to pay -->
-                                <input type="hidden" name="amount" value="{{ $product->price ?? 0 }}" id="esewaAmount">
-                                <!-- eSewa Payment Button -->
-                                <button type="submit" class="btn-esewa-pay">
-                                    <!-- eSewa logo icon -->
-                                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                                    </svg>
-                                    Pay with eSewa
-                                </button>
-                            </form>
-
                             <button type="button" class="btn-wishlist-detail {{ $isLiked ? 'active' : '' }}" onclick="toggleWishlist({{ $product->id }}, this)">
                                 <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
@@ -286,7 +269,13 @@ function toggleWishlist(productId, button) {
             // Update wishlist count in navbar
             const wishlistCountElements = document.querySelectorAll('.wishlist-count');
             wishlistCountElements.forEach(element => {
-                element.textContent = data.wishlistCount;
+                const count = data.wishlistCount || 0;
+                if (count > 0) {
+                    element.textContent = count;
+                    element.style.display = 'flex';
+                } else {
+                    element.style.display = 'none';
+                }
             });
             
             // Show success message

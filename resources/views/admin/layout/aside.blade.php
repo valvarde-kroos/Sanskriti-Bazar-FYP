@@ -42,6 +42,13 @@
                     <span class="nav-text">Customers</span>
                 </a>
             </li>
+
+            <li class="nav-item {{ request()->routeIs('admin.user.role.management') ? 'active' : '' }}">
+                <a href="{{ route('admin.user.role.management') }}" class="nav-link">
+                    <i class="fas fa-user-cog nav-icon"></i>
+                    <span class="nav-text">User & Role</span>
+                </a>
+            </li>
         </ul>
         
         <div class="sidebar-footer">

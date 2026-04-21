@@ -45,6 +45,7 @@
             <span class="dropdown-arrow">▼</span>
             
             <div class="profile-dropdown" id="profileDropdown">
+                <button type="button" class="dropdown-item" onclick="window.location.href='/vendor/settings'; console.log('Navigating to profile');">Profile</button>
                 <button type="button" class="dropdown-item" onclick="window.location.href='/vendor/settings'; console.log('Navigating to settings');">Settings</button>
                 <div class="dropdown-divider"></div>
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">

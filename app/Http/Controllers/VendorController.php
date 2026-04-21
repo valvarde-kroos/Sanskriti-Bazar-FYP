@@ -14,68 +14,206 @@ class VendorController extends Controller
 {
     public function dashboard()
     {
-        $vendor = auth()->user();
+        try {
+            $vendor = auth()->user();
 
-        // Get vendor's products
-        $products = Product::where('user_id', $vendor->id)
-            ->with('category')
+            // Get vendor's products with error handling
+            $products = Product::where('user_id', $vendor->id)
+                ->with('category')
+                ->latest()
+                ->get();
+
+            // Get orders for vendor's products
+            $orders = Order::whereHas('product', function($query) use ($vendor) {
+                $query->where('user_id', $vendor->id);
+            })
+            ->with(['product', 'user'])
             ->latest()
             ->get();
 
-        // Get orders for vendor's products
-        $orders = Order::whereHas('product', function($query) use ($vendor) {
-            $query->where('user_id', $vendor->id);
-        })
-        ->with(['product', 'user'])
-        ->latest()
-        ->get();
+            // Basic statistics
+            $totalProducts = $products->count();
+            $totalOrders = $orders->count();
+            $pendingOrders = $orders->where('status', 'pending')->count();
+            $processingOrders = $orders->where('status', 'processing')->count();
+            $completedOrders = $orders->where('status', 'completed')->count();
+            $cancelledOrders = $orders->where('status', 'cancelled')->count();
+            $acceptedOrders = $orders->where('status', 'accepted')->count();
+            
+            // Revenue calculations
+            $totalRevenue = $orders->where('payment_status', 'paid')->sum('total_price') ?? 0;
+            $monthlyRevenue = $orders->where('payment_status', 'paid')
+                ->whereMonth('created_at', now()->month)
+                ->sum('total_price') ?? 0;
 
-        // Get all categories for the add product form
-        $categories = Category::all();
+            // Product status distribution
+            $activeProducts = $products->where('status', 'active')->count();
+            $inactiveProducts = $products->where('status', 'inactive')->count();
+            $outOfStockProducts = $products->where('quantity', '<=', 0)->count();
 
-        // Calculate statistics
-        $totalProducts = $products->count();
-        $totalOrders = $orders->count();
-        $pendingOrders = $orders->where('status', 'pending')->count();
-        $processingOrders = $orders->where('status', 'processing')->count();
-        $completedOrders = $orders->where('status', 'completed')->count();
-        $cancelledOrders = $orders->where('status', 'cancelled')->count();
-        $totalRevenue = $orders->where('status', 'completed')->sum('total_price');
+            // Monthly sales data for line chart (last 12 months)
+            $monthlySales = [];
+            for ($i = 11; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $sales = Order::whereHas('product', function($query) use ($vendor) {
+                    $query->where('user_id', $vendor->id);
+                })
+                ->where('payment_status', 'paid')
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->sum('total_price') ?? 0;
+                
+                $monthlySales[] = [
+                    'month' => $date->format('M Y'),
+                    'sales' => $sales
+                ];
+            }
 
-        // Revenue by month (last 6 months)
-        $revenueByMonth = Order::whereHas('product', function($query) use ($vendor) {
-            $query->where('user_id', $vendor->id);
-        })
-        ->where('status', 'completed')
-        ->selectRaw('MONTH(created_at) as month, YEAR(created_at) as year, SUM(total_price) as revenue')
-        ->groupBy('year', 'month')
-        ->orderBy('year', 'desc')
-        ->orderBy('month', 'desc')
-        ->limit(6)
-        ->get()
-        ->reverse();
+            // Products per category for vendor
+            $productsByCategory = $products->groupBy('category.categoryName')
+                ->map(function($categoryProducts, $categoryName) {
+                    return [
+                        'name' => $categoryName ?? 'Uncategorized',
+                        'count' => $categoryProducts->count()
+                    ];
+                })
+                ->values()
+                ->sortByDesc('count');
 
-        // Order status distribution for chart
-        $orderStatusData = [
-            'pending' => $pendingOrders,
-            'processing' => $processingOrders,
-            'completed' => $completedOrders,
-            'cancelled' => $cancelledOrders,
-        ];
+            // Order status distribution for doughnut chart
+            $orderStatusDistribution = [
+                'pending' => $pendingOrders,
+                'accepted' => $acceptedOrders,
+                'processing' => $processingOrders,
+                'completed' => $completedOrders,
+                'cancelled' => $cancelledOrders,
+            ];
+
+            // Top selling products for this vendor
+            $topProducts = collect();
+            try {
+                $topProducts = $products->map(function($product) {
+                    $totalSold = Order::where('product_id', $product->id)
+                        ->where('payment_status', 'paid')
+                        ->sum('quantity') ?? 0;
+                    
+                    $product->total_sold = $totalSold;
+                    $product->total_revenue = $totalSold * $product->price;
+                    return $product;
+                })
+                ->sortByDesc('total_sold')
+                ->take(5);
+            } catch (\Exception $e) {
+                $topProducts = $products->take(5)->map(function($product) {
+                    $product->total_sold = 0;
+                    $product->total_revenue = 0;
+                    return $product;
+                });
+            }
+
+            // Recent orders (last 10)
+            $recentOrders = $orders->take(10);
+
+            // Daily orders for current month
+            $dailyOrders = [];
+            $daysInMonth = now()->daysInMonth;
+            for ($day = 1; $day <= $daysInMonth; $day++) {
+                $orderCount = Order::whereHas('product', function($query) use ($vendor) {
+                    $query->where('user_id', $vendor->id);
+                })
+                ->whereDay('created_at', $day)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count();
+                
+                $dailyOrders[] = [
+                    'day' => $day,
+                    'orders' => $orderCount
+                ];
+            }
+
+            // Low stock products (quantity <= 5)
+            $lowStockProducts = $products->where('quantity', '<=', 5)->where('quantity', '>', 0);
+
+            // Recent reviews for vendor products
+            $recentReviews = collect();
+            try {
+                $recentReviews = \App\Models\Review::whereHas('product', function($query) use ($vendor) {
+                    $query->where('user_id', $vendor->id);
+                })
+                ->with(['product', 'user'])
+                ->latest()
+                ->limit(5)
+                ->get();
+            } catch (\Exception $e) {
+                $recentReviews = collect();
+            }
+
+            // Average rating for vendor products
+            $averageRating = 0;
+            try {
+                $averageRating = \App\Models\Review::whereHas('product', function($query) use ($vendor) {
+                    $query->where('user_id', $vendor->id);
+                })->avg('rating') ?? 0;
+            } catch (\Exception $e) {
+                $averageRating = 0;
+            }
+
+        } catch (\Exception $e) {
+            // Fallback data in case of errors
+            $totalProducts = 0;
+            $totalOrders = 0;
+            $pendingOrders = 0;
+            $processingOrders = 0;
+            $completedOrders = 0;
+            $cancelledOrders = 0;
+            $acceptedOrders = 0;
+            $totalRevenue = 0;
+            $monthlyRevenue = 0;
+            $activeProducts = 0;
+            $inactiveProducts = 0;
+            $outOfStockProducts = 0;
+            $monthlySales = [];
+            $productsByCategory = collect();
+            $orderStatusDistribution = [
+                'pending' => 0,
+                'accepted' => 0,
+                'processing' => 0,
+                'completed' => 0,
+                'cancelled' => 0,
+            ];
+            $topProducts = collect();
+            $recentOrders = collect();
+            $dailyOrders = [];
+            $lowStockProducts = collect();
+            $recentReviews = collect();
+            $averageRating = 0;
+            
+            \Log::error('Vendor Dashboard error: ' . $e->getMessage());
+        }
 
         return view('vendor.dashboard', compact(
-            'products',
-            'orders',
-            'categories',
             'totalProducts',
             'totalOrders',
             'pendingOrders',
             'processingOrders',
             'completedOrders',
             'cancelledOrders',
+            'acceptedOrders',
             'totalRevenue',
-            'revenueByMonth',
-            'orderStatusData'
+            'monthlyRevenue',
+            'activeProducts',
+            'inactiveProducts',
+            'outOfStockProducts',
+            'monthlySales',
+            'productsByCategory',
+            'orderStatusDistribution',
+            'topProducts',
+            'recentOrders',
+            'dailyOrders',
+            'lowStockProducts',
+            'recentReviews',
+            'averageRating'
         ));
     }
 
@@ -614,5 +752,90 @@ class VendorController extends Controller
             \Log::error('Notifications error', ['error' => $e->getMessage()]); // Debug log
             return response()->json(['error' => 'Failed to load notifications'], 500);
         }
+    }
+
+    public function notificationsPage()
+    {
+        $vendor = auth()->user();
+        
+        // Get all notifications
+        $allNotifications = [];
+
+        // Order alerts (last 30 days)
+        $recentOrders = Order::whereHas('product', function($q) use ($vendor) {
+                $q->where('user_id', $vendor->id);
+            })
+            ->where('created_at', '>=', now()->subDays(30))
+            ->with(['user', 'product'])
+            ->latest()
+            ->get();
+
+        foreach ($recentOrders as $order) {
+            $allNotifications[] = [
+                'id' => 'order-' . $order->id,
+                'type' => 'order',
+                'icon' => 'fas fa-shopping-cart',
+                'title' => 'New Order Received',
+                'description' => 'Order #' . $order->id . ' from ' . $order->user->name . ' - ' . $order->product->post_title,
+                'time' => $order->created_at->diffForHumans(),
+                'date' => $order->created_at,
+                'unread' => $order->created_at->isToday(),
+                'status' => $order->status
+            ];
+        }
+
+        // Low stock alerts
+        $lowStockProducts = Product::where('user_id', $vendor->id)
+            ->where('quantity', '<=', 5)
+            ->where('quantity', '>', 0)
+            ->get();
+
+        foreach ($lowStockProducts as $product) {
+            $allNotifications[] = [
+                'id' => 'stock-' . $product->id,
+                'type' => 'stock',
+                'icon' => 'fas fa-box',
+                'title' => 'Low Stock Alert',
+                'description' => $product->post_title . ' inventory is running low (' . $product->quantity . ' left)',
+                'time' => 'Stock alert',
+                'date' => now(),
+                'unread' => true,
+                'status' => 'warning'
+            ];
+        }
+
+        // Completed orders (payout confirmations)
+        $completedOrders = Order::whereHas('product', function($q) use ($vendor) {
+                $q->where('user_id', $vendor->id);
+            })
+            ->where('status', 'completed')
+            ->where('payment_status', 'paid')
+            ->where('updated_at', '>=', now()->subDays(30))
+            ->with(['user', 'product'])
+            ->latest()
+            ->get();
+
+        foreach ($completedOrders as $order) {
+            $allNotifications[] = [
+                'id' => 'payout-' . $order->id,
+                'type' => 'payout',
+                'icon' => 'fas fa-money-bill-wave',
+                'title' => 'Payout Confirmed',
+                'description' => 'Order #' . $order->id . ' completed - Rs. ' . number_format($order->total_price) . ' added to earnings',
+                'time' => $order->updated_at->diffForHumans(),
+                'date' => $order->updated_at,
+                'unread' => false,
+                'status' => 'completed'
+            ];
+        }
+
+        // Sort by date (most recent first)
+        usort($allNotifications, function($a, $b) {
+            return $b['date'] <=> $a['date'];
+        });
+
+        $unreadCount = count(array_filter($allNotifications, function($n) { return $n['unread']; }));
+
+        return view('vendor.notifications-page', compact('allNotifications', 'unreadCount'));
     }
 }

@@ -8,22 +8,25 @@
     <div class="header-actions">
         <!-- Notifications -->
         <div class="notification-dropdown">
-            <button class="notification-btn" id="notificationBtn" onclick="toggleNotifications(event)">
+            <button class="notification-btn" id="notificationBtn">
                 <i class="fas fa-bell"></i>
                 <span class="notification-badge" id="notificationBadge" style="display: none;"></span>
             </button>
-            <div class="notification-panel" id="notificationPanel">
+            <div class="notification-panel" id="notificationPanel" style="display: none;">
                 <div class="notification-header">
                     <div class="notification-header-left">
                         <h4>Notifications</h4>
                         <span class="unread-count" id="unreadCount">0 unread</span>
                     </div>
-                    <button class="mark-all-read-btn" id="markAllReadBtn" onclick="markAllAsRead(event)">
+                    <button class="mark-all-read-btn" id="markAllReadBtn" style="display: none;">
                         Mark all as read
                     </button>
                 </div>
                 <div class="notification-list" id="notificationList">
-                    <!-- Notifications will be loaded here -->
+                    <div class="no-notifications">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>Loading notifications...</p>
+                    </div>
                 </div>
                 <div class="notification-footer">
                     <a href="#" class="view-all-link">View All Notifications</a>
@@ -32,7 +35,7 @@
         </div>
 
         <!-- Admin Profile -->
-        <div class="admin-profile" onclick="toggleProfileDropdown(event)">
+        <div class="admin-profile" id="adminProfile">
             <div class="profile-info">
                 <span class="admin-name">{{ Auth::user()->name ?? 'Admin' }}</span>
                 <span class="admin-role">Administrator</span>
@@ -42,7 +45,7 @@
             </div>
             
             <!-- Profile Dropdown Menu -->
-            <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-dropdown" id="profileDropdown" style="display: none;">
                 <a href="{{ route('admin.profile') }}" class="dropdown-item">
                     <i class="fas fa-user"></i>
                     <span>View Profile</span>
@@ -506,148 +509,91 @@
 </style>
 
 <script>
-    // Notification system - starts empty, no dummy data
+    // Notification system
     let notifications = [];
-
-    // Global variables for notification system
     let notificationPanelOpen = false;
     let profileDropdownOpen = false;
 
-    // Toggle notification dropdown
+    // Load notifications from server
+    function loadNotifications() {
+        console.log('📡 Loading notifications from server...');
+        
+        fetch('{{ route("admin.notifications") }}')
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ Notifications loaded:', data);
+                if (data.success) {
+                    notifications = data.notifications;
+                    updateNotificationDisplay();
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error loading notifications:', error);
+            });
+    }
+
+    // Toggle notification panel
     function toggleNotifications(event) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
         
-        console.log('=== NOTIFICATION BUTTON CLICKED ===');
-        
         const panel = document.getElementById('notificationPanel');
         const profileDropdown = document.getElementById('profileDropdown');
         
+        console.log('🔔 Notification button clicked');
+        console.log('Panel element:', panel);
+        
         if (!panel) {
-            console.error('Notification panel not found!');
+            console.error('❌ Notification panel not found!');
             return;
         }
         
-        console.log('Panel found, current classes:', panel.className);
-        
-        // Close profile dropdown first
+        // Close profile dropdown
         if (profileDropdown && profileDropdownOpen) {
             profileDropdown.style.display = 'none';
             profileDropdownOpen = false;
         }
         
-        // Toggle notification panel using CSS class
+        // Toggle panel
         if (notificationPanelOpen) {
-            panel.classList.remove('show');
+            panel.style.display = 'none';
             notificationPanelOpen = false;
-            console.log('Closed notification panel');
+            console.log('📪 Panel closed');
         } else {
-            panel.classList.add('show');
+            panel.style.display = 'block';
             notificationPanelOpen = true;
-            console.log('Opened notification panel');
+            console.log('📬 Panel opened');
+            loadNotifications(); // Reload when opening
         }
-        
-        console.log('New panel classes:', panel.className);
     }
 
-    // Initialize when page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Admin header notification system loaded!');
-        console.log('Initial notifications array:', notifications);
-        
-        // Update notification display on page load
-        updateNotificationDisplay();
-
-        // Test if elements exist
-        const badge = document.getElementById('notificationBadge');
-        const panel = document.getElementById('notificationPanel');
-        const btn = document.getElementById('notificationBtn');
-        const profileArea = document.getElementById('adminProfile');
-        
-        console.log('Badge element:', badge);
-        console.log('Panel element:', panel);
-        console.log('Button element:', btn);
-        console.log('Profile area:', profileArea);
-
-        // Add event listeners
-        if (btn) {
-            btn.addEventListener('click', toggleNotifications);
-            console.log('✅ Notification button event listener added');
-        }
-
-        if (profileArea) {
-            profileArea.addEventListener('click', toggleProfileDropdown);
-            console.log('✅ Profile area event listener added');
-        }
-
-        // Add event delegation for dropdown links
-        document.addEventListener('click', function(e) {
-            const dropdownItem = e.target.closest('.dropdown-item');
-            if (dropdownItem) {
-                console.log('🔗 Dropdown item clicked:', dropdownItem);
-                console.log('🔗 Is it a link?', dropdownItem.tagName);
-                console.log('🔗 Link href:', dropdownItem.href);
-                
-                if (dropdownItem.tagName === 'A') {
-                    console.log('✅ Allowing link navigation to:', dropdownItem.href);
-                    // Close the dropdown when a link is clicked
-                    const dropdown = document.getElementById('profileDropdown');
-                    if (dropdown) {
-                        dropdown.style.display = 'none';
-                        profileDropdownOpen = false;
-                    }
-                    // Allow the link to navigate normally
-                } else if (dropdownItem.tagName === 'BUTTON') {
-                    console.log('🔘 Button clicked, handling form submission');
-                    // For logout button, allow form submission
-                }
-            }
-        });
-
-        // Close dropdowns when clicking outside
-        document.addEventListener('click', function(e) {
-            const notificationDropdown = e.target.closest('.notification-dropdown');
-            const profileElement = e.target.closest('.admin-profile');
-            const dropdownItem = e.target.closest('.dropdown-item');
-            
-            // Close notification panel if clicking outside
-            if (!notificationDropdown && notificationPanelOpen) {
-                const panel = document.getElementById('notificationPanel');
-                if (panel) {
-                    panel.classList.remove('show');
-                    notificationPanelOpen = false;
-                }
-            }
-            
-            // Close profile dropdown if clicking outside (but allow dropdown links to work)
-            if (!profileElement && profileDropdownOpen && !dropdownItem) {
-                const dropdown = document.getElementById('profileDropdown');
-                if (dropdown) {
-                    dropdown.style.display = 'none';
-                    profileDropdownOpen = false;
-                }
-            }
-        });
-    });
-
+    // Update notification display
     function updateNotificationDisplay() {
         const badge = document.getElementById('notificationBadge');
         const notificationList = document.getElementById('notificationList');
         const unreadCount = document.getElementById('unreadCount');
         const markAllReadBtn = document.getElementById('markAllReadBtn');
         
+        console.log('🔄 Updating notification display');
+        console.log('Notifications count:', notifications.length);
+        
         if (!badge || !notificationList || !unreadCount) {
-            console.log('Notification elements not found!');
+            console.error('❌ Notification elements not found!');
             return;
         }
         
-        // Count unread notifications
+        // Count unread
         const unreadNotifications = notifications.filter(n => !n.isRead);
         const unreadCountNumber = unreadNotifications.length;
         
-        // Update badge - ONLY show if there are unread notifications
+        console.log('Unread count:', unreadCountNumber);
+        
+        // Update badge
         if (unreadCountNumber > 0) {
             badge.style.display = 'flex';
             badge.textContent = unreadCountNumber > 99 ? '99+' : unreadCountNumber;
@@ -658,12 +604,12 @@
         // Update unread count text
         unreadCount.textContent = `${unreadCountNumber} unread`;
         
-        // Show/hide mark all as read button
+        // Show/hide mark all button
         if (markAllReadBtn) {
             markAllReadBtn.style.display = unreadCountNumber > 0 ? 'block' : 'none';
         }
         
-        // Display notifications or empty state
+        // Display notifications
         if (notifications.length === 0) {
             notificationList.innerHTML = `
                 <div class="no-notifications">
@@ -673,9 +619,8 @@
             `;
         } else {
             notificationList.innerHTML = notifications
-                .sort((a, b) => b.timestamp - a.timestamp) // Sort by newest first
                 .map(notification => `
-                    <div class="notification-item ${notification.isRead ? 'read' : 'unread'}" onclick="markAsRead(${notification.id})">
+                    <div class="notification-item ${notification.isRead ? 'read' : 'unread'}" onclick="markAsRead('${notification.id}')">
                         <div class="notification-dot ${notification.type}"></div>
                         <div class="notification-content">
                             <p class="notification-message">${notification.message}</p>
@@ -684,25 +629,25 @@
                     </div>
                 `).join('');
         }
+        
+        console.log('✅ Display updated');
     }
 
-    // Mark all notifications as read
+    // Mark all as read
     function markAllAsRead(event) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();
         }
         
-        console.log('Mark all as read clicked!');
-        notifications.forEach(notification => {
-            notification.isRead = true;
-        });
+        console.log('✓ Mark all as read');
+        notifications.forEach(n => n.isRead = true);
         updateNotificationDisplay();
     }
 
-    // Mark single notification as read when clicked
+    // Mark single as read
     function markAsRead(notificationId) {
-        console.log('Notification clicked:', notificationId);
+        console.log('✓ Mark as read:', notificationId);
         const notification = notifications.find(n => n.id === notificationId);
         if (notification && !notification.isRead) {
             notification.isRead = true;
@@ -710,87 +655,106 @@
         }
     }
 
-    // Function to add a new notification
-    function addNotification(type, message, customerName = '') {
-        const typeMessages = {
-            customer: `New customer ${customerName} just registered`,
-            vendor: `New vendor ${customerName} applied for approval`,
-            order: `Customer ${customerName} placed a new order`,
-            category: `New category ${message} was added`
-        };
-        
-        const notification = {
-            id: Date.now(),
-            type: type,
-            message: typeMessages[type] || message,
-            time: 'Just now',
-            isRead: false,
-            timestamp: Date.now()
-        };
-        
-        notifications.unshift(notification); // Add to beginning
-        updateNotificationDisplay();
-        
-        console.log('New notification added:', notification);
-    }
-
-    // PROFILE DROPDOWN FUNCTIONS
+    // Toggle profile dropdown
     function toggleProfileDropdown(event) {
-        // Only prevent default if it's the profile area click, not dropdown links
-        const isDropdownLink = event.target.closest('.dropdown-item');
+        // Don't prevent default - let links work normally
+        if (event) {
+            event.stopPropagation();
+        }
         
-        if (!isDropdownLink) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            console.log('👤 Profile area clicked!');
-            
-            const dropdown = document.getElementById('profileDropdown');
-            const notificationPanel = document.getElementById('notificationPanel');
-            
-            // Close notification panel first
-            if (notificationPanel && notificationPanelOpen) {
-                notificationPanel.classList.remove('show');
-                notificationPanelOpen = false;
-            }
-            
-            // Toggle profile dropdown
-            if (profileDropdownOpen) {
-                dropdown.style.display = 'none';
-                profileDropdownOpen = false;
-                console.log('📁 Profile dropdown closed');
-            } else {
-                dropdown.style.display = 'block';
-                profileDropdownOpen = true;
-                console.log('📂 Profile dropdown opened');
-            }
-        } else {
-            console.log('🔗 Dropdown link clicked, allowing navigation');
-            // Allow the link to work normally
+        const dropdown = document.getElementById('profileDropdown');
+        const notificationPanel = document.getElementById('notificationPanel');
+        
+        console.log('👤 Profile clicked');
+        
+        // Close notification panel
+        if (notificationPanel && notificationPanelOpen) {
+            notificationPanel.style.display = 'none';
+            notificationPanelOpen = false;
+        }
+        
+        // Toggle profile dropdown
+        if (profileDropdownOpen) {
+            dropdown.style.display = 'none';
             profileDropdownOpen = false;
-            const dropdown = document.getElementById('profileDropdown');
-            if (dropdown) {
-                dropdown.style.display = 'none';
-            }
+            console.log('📁 Profile dropdown closed');
+        } else {
+            dropdown.style.display = 'block';
+            profileDropdownOpen = true;
+            console.log('📂 Profile dropdown opened');
         }
     }
 
-    // Test functions for adding notifications (for development/testing)
-    function testCustomerNotification() {
-        addNotification('customer', '', 'Alice Johnson');
-    }
-
-    function testVendorNotification() {
-        addNotification('vendor', '', 'Bob Smith');
-    }
-
-    function testOrderNotification() {
-        addNotification('order', '', 'Sarah Wilson');
-    }
-
-    function testCategoryNotification() {
-        addNotification('category', 'String Instruments');
-    }
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 Admin notification system initializing...');
+        
+        const notificationBtn = document.getElementById('notificationBtn');
+        const markAllBtn = document.getElementById('markAllReadBtn');
+        const profileArea = document.getElementById('adminProfile');
+        
+        console.log('Notification button:', notificationBtn);
+        console.log('Mark all button:', markAllBtn);
+        console.log('Profile area:', profileArea);
+        
+        // Add click listener to notification button
+        if (notificationBtn) {
+            notificationBtn.addEventListener('click', toggleNotifications);
+            console.log('✅ Notification button listener added');
+        } else {
+            console.error('❌ Notification button not found!');
+        }
+        
+        // Add click listener to mark all button
+        if (markAllBtn) {
+            markAllBtn.addEventListener('click', markAllAsRead);
+            console.log('✅ Mark all button listener added');
+        }
+        
+        // Add click listener to profile area (but not dropdown items)
+        if (profileArea) {
+            profileArea.addEventListener('click', function(e) {
+                // Only toggle if clicking the profile area itself, not dropdown items
+                const isDropdownItem = e.target.closest('.dropdown-item');
+                const isDropdown = e.target.closest('.profile-dropdown');
+                
+                if (!isDropdownItem && !isDropdown) {
+                    toggleProfileDropdown(e);
+                }
+            });
+            console.log('✅ Profile area listener added');
+        }
+        
+        // Load notifications on page load
+        loadNotifications();
+        
+        // Refresh every 30 seconds
+        setInterval(loadNotifications, 30000);
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            const notificationDropdown = e.target.closest('.notification-dropdown');
+            const profileElement = e.target.closest('.admin-profile');
+            
+            // Close notification panel if clicking outside
+            if (!notificationDropdown && notificationPanelOpen) {
+                const panel = document.getElementById('notificationPanel');
+                if (panel) {
+                    panel.style.display = 'none';
+                    notificationPanelOpen = false;
+                }
+            }
+            
+            // Close profile dropdown if clicking outside
+            if (!profileElement && profileDropdownOpen) {
+                const dropdown = document.getElementById('profileDropdown');
+                if (dropdown) {
+                    dropdown.style.display = 'none';
+                    profileDropdownOpen = false;
+                }
+            }
+        });
+        
+        console.log('✅ Notification system initialized');
+    });
 </script>

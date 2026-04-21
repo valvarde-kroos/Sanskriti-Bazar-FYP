@@ -10,7 +10,7 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'user']);
+        $query = Product::query()->distinct();
         
         // Search
         if ($request->filled('search')) {
@@ -49,7 +49,10 @@ class ShopController extends Controller
                 break;
         }
         
+        // Get products with relationships loaded after query
         $products = $query->get();
+        $products->load(['category', 'user']);
+        
         $categories = Category::orderBy('categoryName')->get();
         
         return view('shop', compact('products', 'categories'));

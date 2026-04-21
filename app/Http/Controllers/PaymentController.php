@@ -9,6 +9,8 @@ use App\Models\Payment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VendorNewOrderNotification;
 use Xentixar\EsewaSdk\Esewa;
 
 class PaymentController extends Controller
@@ -106,6 +108,20 @@ class PaymentController extends Controller
                     'payment_method' => 'esewa',
                 ]);
 
+                // Send email notification to vendor
+                try {
+                    $product = $order->product;
+                    if ($product && $product->user) {
+                        $vendor = $product->user;
+                        if ($vendor->email) {
+                            Mail::to($vendor->email)->send(new VendorNewOrderNotification($order, $vendor));
+                            Log::info("Vendor email sent to {$vendor->email} for order #{$order->id}");
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error("Failed to send vendor email for order #{$order->id}: " . $e->getMessage());
+                }
+
                 // clearing Cart
                 Cart::where('user_id', $user->id)->delete();
 
@@ -140,6 +156,20 @@ class PaymentController extends Controller
                 'shipping_address' => session('shipping_address'),
                 'shipping_phone' => session('shipping_phone'),
             ]);
+
+            // Send email notification to vendor for COD orders
+            try {
+                $product = $order->product;
+                if ($product && $product->user) {
+                    $vendor = $product->user;
+                    if ($vendor->email) {
+                        Mail::to($vendor->email)->send(new VendorNewOrderNotification($order, $vendor));
+                        Log::info("Vendor email sent to {$vendor->email} for order #{$order->id}");
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::error("Failed to send vendor email for order #{$order->id}: " . $e->getMessage());
+            }
 
             Cart::where('user_id', $user->id)->delete();
 

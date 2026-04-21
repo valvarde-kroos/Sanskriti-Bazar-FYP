@@ -72,15 +72,20 @@ class UserController extends Controller
             'password'=>bcrypt($request->password),
             'phone'=>$request->phone,
             'role'=>$request->role ?? 'customer',
+            'approval_status' => ($request->role === 'vendor') ? 'pending' : 'approved',
+            'is_active' => true,
         ]);
+
+        // Don't auto-login vendors who need approval
+        if ($request->role === 'vendor') {
+            return redirect()->route('login')->with('success', 'Your vendor account has been created! Please wait for admin approval before logging in.');
+        }
 
         Auth::login($user);
         
         // Redirect based on role
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
-        } elseif ($user->isVendor()) {
-            return redirect()->route('vendor.dashboard');
         } else {
             return redirect()->route('home')->with('success', 'Welcome to Sanskriti Bazar! Your account has been created successfully.');
         }

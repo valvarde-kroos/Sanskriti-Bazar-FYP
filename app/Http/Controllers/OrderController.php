@@ -10,6 +10,8 @@ use App\Services\EsewaService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VendorNewOrderNotification;
 
 class OrderController extends Controller
 {
@@ -142,6 +144,17 @@ class OrderController extends Controller
                 // Update product stock only for cash on delivery
                 if ($request->payment_method === 'cash_on_delivery') {
                     $product->decrement('quantity', $item->quantity);
+                    
+                    // Send email notification to vendor for COD orders
+                    try {
+                        $vendor = $product->user;
+                        if ($vendor && $vendor->email) {
+                            Mail::to($vendor->email)->send(new VendorNewOrderNotification($order, $vendor));
+                            Log::info("Vendor email sent to {$vendor->email} for order #{$order->id}");
+                        }
+                    } catch (\Exception $e) {
+                        Log::error("Failed to send vendor email for order #{$order->id}: " . $e->getMessage());
+                    }
                 }
             }
 
@@ -216,6 +229,17 @@ class OrderController extends Controller
                             
                             // Reduce product stock
                             $order->product->decrement('quantity', $order->quantity);
+                            
+                            // Send email notification to vendor for eSewa orders
+                            try {
+                                $vendor = $order->product->user;
+                                if ($vendor && $vendor->email) {
+                                    Mail::to($vendor->email)->send(new VendorNewOrderNotification($order, $vendor));
+                                    Log::info("Vendor email sent to {$vendor->email} for order #{$order->id}");
+                                }
+                            } catch (\Exception $e) {
+                                Log::error("Failed to send vendor email for order #{$order->id}: " . $e->getMessage());
+                            }
                         }
                     }
                     

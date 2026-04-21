@@ -3364,9 +3364,10 @@ footer a:hover {
 }
 /* ================= MODERN FOOTER ================= */
 .modern-footer {
-    background: #2c3e50;
-    color: #ecf0f1;
+    background: #ffffff;
+    color: #2c3e50;
     margin-top: auto;
+    border-top: 1px solid #e9ecef;
 }
 
 .footer-container {
@@ -3385,7 +3386,7 @@ footer a:hover {
 .footer-section h4.footer-title {
     font-size: 18px;
     font-weight: 700;
-    color: #fff;
+    color: #2c3e50;
     margin-bottom: 20px;
 }
 
@@ -3400,7 +3401,7 @@ footer a:hover {
 }
 
 .footer-description {
-    color: #bdc3c7;
+    color: #6c757d;
     line-height: 1.6;
     margin-bottom: 25px;
     font-size: 14px;
@@ -3414,12 +3415,12 @@ footer a:hover {
 .social-link {
     width: 40px;
     height: 40px;
-    background: rgba(255, 255, 255, 0.1);
+    background: #f8f9fa;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ecf0f1;
+    color: #2c3e50;
     transition: all 0.3s ease;
 }
 
@@ -3440,7 +3441,7 @@ footer a:hover {
 }
 
 .footer-links a {
-    color: #bdc3c7;
+    color: #6c757d;
     text-decoration: none;
     font-size: 14px;
     transition: color 0.3s ease;
@@ -3460,7 +3461,7 @@ footer a:hover {
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #bdc3c7;
+    color: #6c757d;
     font-size: 14px;
 }
 
@@ -3470,7 +3471,7 @@ footer a:hover {
 }
 
 .footer-bottom {
-    border-top: 1px solid #34495e;
+    border-top: 1px solid #e9ecef;
     padding: 25px 0;
 }
 
@@ -3483,7 +3484,7 @@ footer a:hover {
 }
 
 .footer-bottom p {
-    color: #bdc3c7;
+    color: #6c757d;
     font-size: 14px;
     margin: 0;
 }
@@ -3492,7 +3493,7 @@ footer a:hover {
     display: flex;
     align-items: center;
     gap: 15px;
-    color: #bdc3c7;
+    color: #6c757d;
     font-size: 14px;
 }
 
@@ -3541,25 +3542,24 @@ footer a:hover {
 .famms-navbar {
     background: #ffffff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
+    position: fixed;
     top: 0;
+    width:100%;
     z-index: 1000;
     transition: all 0.3s ease;
 }
 
 .famms-navbar .navbar-container {
-    max-width: 1200px;
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    height: 80px;
+    padding: 0px;
 }
+    
 
 .famms-navbar .navbar-logo {
-    flex-shrink: 0;
-    margin-left: -15px;
+  margin-left: 0;
+    
 }
 
 .famms-navbar .logo-text {
@@ -3573,15 +3573,15 @@ footer a:hover {
     display: flex;
     align-items: center;
     gap: 2rem;
-    flex: 1;
-    justify-content: flex-end;
-    margin-right: -15px;
+    margin-left: auto;
 }
 
 .famms-navbar .navbar-menu {
     display: flex;
     align-items: center;
     gap: 2rem;
+    margin-left: auto;
+    margin-right: 0.5rem;
 }
 
 .famms-navbar .nav-item {
@@ -3633,7 +3633,8 @@ footer a:hover {
 }
 
 .famms-navbar .cart-count,
-.famms-navbar .wishlist-count {
+.famms-navbar .wishlist-count,
+.famms-navbar .notification-count {
     position: absolute;
     top: 5px;
     right: 5px;

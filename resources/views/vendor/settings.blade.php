@@ -112,42 +112,32 @@
             @method('PUT')
             
             <div class="form-group">
-                <label for="address_line1" class="form-label">Address Line 1</label>
-                <input type="text" class="form-control" id="address_line1" name="address_line1" 
-                       value="{{ auth()->user()->address_line1 ?? '123 Main Street' }}" required>
-                <small class="text-muted">Street address, building number</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="address_line2" class="form-label">Address Line 2 (Optional)</label>
-                <input type="text" class="form-control" id="address_line2" name="address_line2" 
-                       value="{{ auth()->user()->address_line2 ?? 'Apartment 4B' }}">
-                <small class="text-muted">Apartment, suite, unit, building, floor, etc.</small>
-            </div>
-            
-            <div class="address-row">
-                <div class="form-group">
-                    <label for="city" class="form-label">City</label>
-                    <input type="text" class="form-control" id="city" name="city" 
-                           value="{{ auth()->user()->city ?? 'New York' }}" required>
-                </div>
-                <div class="form-group">
-                    <label for="postal_code" class="form-label">Postal Code</label>
-                    <input type="text" class="form-control" id="postal_code" name="postal_code" 
-                           value="{{ auth()->user()->postal_code ?? '10001' }}" required>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="country" class="form-label">Country</label>
-                <select class="form-control" id="country" name="country" required>
-                    <option value="US" {{ (auth()->user()->country ?? 'US') == 'US' ? 'selected' : '' }}>United States</option>
-                    <option value="CA" {{ (auth()->user()->country ?? '') == 'CA' ? 'selected' : '' }}>Canada</option>
-                    <option value="UK" {{ (auth()->user()->country ?? '') == 'UK' ? 'selected' : '' }}>United Kingdom</option>
-                    <option value="AU" {{ (auth()->user()->country ?? '') == 'AU' ? 'selected' : '' }}>Australia</option>
-                    <option value="NP" {{ (auth()->user()->country ?? '') == 'NP' ? 'selected' : '' }}>Nepal</option>
-                    <option value="IN" {{ (auth()->user()->country ?? '') == 'IN' ? 'selected' : '' }}>India</option>
+                <label for="province" class="form-label">Province</label>
+                <select class="form-control" id="province" name="province" required>
+                    <option value="">Select Province</option>
+                    @foreach(['Koshi','Madhesh','Bagmati','Gandaki','Lumbini','Karnali','Sudurpashchim'] as $p)
+                        <option value="{{ $p }}" {{ (auth()->user()->province ?? '') == $p ? 'selected' : '' }}>{{ $p }}</option>
+                    @endforeach
                 </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="district" class="form-label">District</label>
+                <input type="text" class="form-control" id="district" name="district" 
+                       value="{{ auth()->user()->district ?? '' }}" placeholder="e.g. Kathmandu" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="city" class="form-label">City / Municipality</label>
+                <input type="text" class="form-control" id="city" name="city" 
+                       value="{{ auth()->user()->city ?? '' }}" placeholder="e.g. Kathmandu Metropolitan City" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="address_line1" class="form-label">Street / Tole</label>
+                <input type="text" class="form-control" id="address_line1" name="address_line1" 
+                       value="{{ auth()->user()->address_line1 ?? '' }}" placeholder="e.g. Thamel, Ward No. 26" required>
+                <small class="text-muted">Street address, ward number</small>
             </div>
             
             <button type="submit" class="action-btn primary">Save Address</button>
@@ -179,15 +169,6 @@
                 <label for="new_password_confirmation" class="form-label">Confirm New Password</label>
                 <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" required>
                 <small class="text-muted">Re-enter your new password</small>
-            </div>
-            
-            <div class="alert alert-info">
-                <small>
-                    <strong>Password Requirements:</strong><br>
-                    • Minimum 6 characters<br>
-                    • Use a strong, unique password<br>
-                    • Don't share your password with anyone
-                </small>
             </div>
             
             <button type="submit" class="action-btn primary">Change Password</button>
@@ -351,133 +332,4 @@
         }
     }
 </style>
-@endsection
-
-@section('scripts')
-        // Function to preview uploaded logo
-        function previewLogo(input) {
-            const preview = document.getElementById('logoPreview');
-            
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" alt="Logo Preview">`;
-                };
-                
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        // Function to show success message
-        function showMessage(message, type = 'success') {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-            alertDiv.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-            alertDiv.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            document.body.appendChild(alertDiv);
-            
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
-        }
-
-        // Handle form submissions with AJAX (for demo purposes)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Profile form submission
-            document.getElementById('profileForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // Get form data
-                const formData = new FormData(this);
-                const name = formData.get('name');
-                const email = formData.get('email');
-                const phone = formData.get('phone');
-                
-                // Simulate saving (in real app, this would be an AJAX call)
-                setTimeout(() => {
-                    showMessage('Profile information updated successfully!', 'success');
-                }, 500);
-                
-                console.log('Profile updated:', { name, email, phone });
-            });
-
-            // Shop form submission
-            document.getElementById('shopForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                const shopName = formData.get('shop_name');
-                const shopDescription = formData.get('shop_description');
-                
-                setTimeout(() => {
-                    showMessage('Shop details updated successfully!', 'success');
-                }, 500);
-                
-                console.log('Shop updated:', { shopName, shopDescription });
-            });
-
-            // Address form submission
-            document.getElementById('addressForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                const address = {
-                    line1: formData.get('address_line1'),
-                    line2: formData.get('address_line2'),
-                    city: formData.get('city'),
-                    postal: formData.get('postal_code'),
-                    country: formData.get('country')
-                };
-                
-                setTimeout(() => {
-                    showMessage('Address information updated successfully!', 'success');
-                }, 500);
-                
-                console.log('Address updated:', address);
-            });
-
-            // Password form submission
-            document.getElementById('passwordForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                const currentPassword = formData.get('current_password');
-                const newPassword = formData.get('new_password');
-                const confirmPassword = formData.get('new_password_confirmation');
-                
-                // Basic validation
-                if (newPassword !== confirmPassword) {
-                    showMessage('New passwords do not match!', 'danger');
-                    return;
-                }
-                
-                if (newPassword.length < 6) {
-                    showMessage('Password must be at least 6 characters long!', 'danger');
-                    return;
-                }
-                
-                // Clear form
-                this.reset();
-                
-                setTimeout(() => {
-                    showMessage('Password changed successfully!', 'success');
-                }, 500);
-                
-                console.log('Password changed successfully');
-            });
-
-            console.log('Settings page loaded successfully!');
-            console.log('All form handlers are active and working.');
-        });
-    </script>
-</body>
-</html>
 @endsection

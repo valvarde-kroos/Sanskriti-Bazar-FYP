@@ -20,7 +20,23 @@ class RoleMiddleware
             return redirect()->route('login');
         }
 
-        $userRole = auth()->user()->role;
+        $user = auth()->user();
+        $userRole = $user->role;
+
+        // Check if user account is active
+        if (!$user->is_active) {
+            auth()->logout();
+            return redirect()->route('login')->with('error', 'Your account has been deactivated. Please contact administrator.');
+        }
+
+        // Check if vendor is approved
+        if ($userRole === 'vendor' && $user->approval_status !== 'approved') {
+            auth()->logout();
+            $message = $user->approval_status === 'pending' 
+                ? 'Your vendor account is pending approval. Please wait for admin approval.'
+                : 'Your vendor account has been declined. Please contact administrator.';
+            return redirect()->route('login')->with('error', $message);
+        }
 
         if (!in_array($userRole, $roles)) {
             abort(403, 'Unauthorized access');

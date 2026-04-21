@@ -90,6 +90,34 @@ class CustomerController extends Controller
         
         return view('customer.reviews', compact('myReviews', 'orderedProducts'));
     }
+    
+    public function notifications()
+    {
+        $customer = auth()->user();
+        
+        // Get customer's orders for notifications
+        $orders = Order::where('user_id', $customer->id)
+            ->with('product')
+            ->latest()
+            ->get();
+        
+        return view('customer.notifications', compact('orders'));
+    }
+    
+    public function notificationCount()
+    {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return response()->json(['count' => 0]);
+        }
+
+        // Count unread notifications (orders that were updated in last 7 days)
+        $count = Order::where('user_id', Auth::id())
+            ->where('updated_at', '>=', now()->subDays(7))
+            ->count();
+        
+        return response()->json(['count' => $count]);
+    }
 
     public function wishlist()
     {

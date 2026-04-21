@@ -186,22 +186,24 @@ Route::get('/test-admin-search', function() {
     return view('test-admin-search', compact('categories', 'vendors', 'customers', 'products'));
 })->name('test.admin.search');
 
-// Test vendor user (remove in production)
-Route::get('/test-vendor-user', function() {
-    $user = App\Models\User::where('email', 'vendor@gmail.com')->first();
-    if ($user) {
-        return response()->json([
-            'user_exists' => true,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-            'password_check' => Hash::check('password', $user->password),
-            'created_at' => $user->created_at
-        ]);
-    } else {
-        return response()->json(['user_exists' => false]);
+// Test route to distribute products among vendors (remove in production)
+Route::get('/distribute-products-to-vendors', function() {
+    $vendors = App\Models\User::where('role', 'vendor')->get();
+    $products = App\Models\Product::all();
+    
+    if ($vendors->isEmpty() || $products->isEmpty()) {
+        return 'No vendors or products found!';
     }
-})->name('test.vendor.user');
+    
+    $vendorIndex = 0;
+    foreach ($products as $product) {
+        $vendor = $vendors[$vendorIndex % $vendors->count()];
+        $product->update(['user_id' => $vendor->id]);
+        $vendorIndex++;
+    }
+    
+    return 'Distributed ' . $products->count() . ' products among ' . $vendors->count() . ' vendors!';
+})->name('distribute.products.vendors');
 
 // Create vendor user (remove in production)
 Route::get('/create-vendor-user', function() {
@@ -247,6 +249,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
         Route::get('/admin/vendors', [App\Http\Controllers\AdminController::class, 'vendors'])->name('admin.vendors');
+        
+        // Admin Notifications API
+        Route::get('/admin/notifications', [App\Http\Controllers\AdminController::class, 'getNotifications'])->name('admin.notifications');
         Route::post('/admin/vendor/store', [App\Http\Controllers\AdminController::class, 'storeVendor'])->name('admin.vendor.store');
         Route::put('/admin/vendor/update/{id}', [App\Http\Controllers\AdminController::class, 'updateVendor'])->name('admin.vendor.update');
         Route::delete('/admin/vendor/delete/{id}', [App\Http\Controllers\AdminController::class, 'deleteVendor'])->name('admin.vendor.delete');
@@ -280,6 +285,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/admin/profile/update', [App\Http\Controllers\AdminController::class, 'updateProfile'])->name('admin.profile.update');
         Route::put('/admin/profile/password/update', [App\Http\Controllers\AdminController::class, 'updatePassword'])->name('admin.profile.password.update');
 
+        // User Role Management Routes
+        Route::get('/admin/user-role-management', [App\Http\Controllers\AdminController::class, 'userRoleManagement'])->name('admin.user.role.management');
+        Route::put('/admin/user/{id}/role', [App\Http\Controllers\AdminController::class, 'updateUserRole'])->name('admin.user.role.update');
+        Route::post('/admin/user/{id}/toggle-status', [App\Http\Controllers\AdminController::class, 'toggleAccountStatus'])->name('admin.user.toggle.status');
+        Route::delete('/admin/user/{id}/delete', [App\Http\Controllers\AdminController::class, 'deleteUser'])->name('admin.user.delete');
+
     });
 
     // Vendor Dashboard
@@ -302,6 +313,9 @@ Route::middleware('auth')->group(function () {
         // Search and Notifications API
         Route::get('/vendor/search', [App\Http\Controllers\VendorController::class, 'search'])->name('vendor.search');
         Route::get('/vendor/notifications', [App\Http\Controllers\VendorController::class, 'getNotifications'])->name('vendor.notifications');
+        
+        // Notifications Page
+        Route::get('/vendor/notifications-page', [App\Http\Controllers\VendorController::class, 'notificationsPage'])->name('vendor.notifications.page');
         
         // Test vendor layout (remove in production)
         Route::get('/test-vendor-layout', function() {
@@ -350,16 +364,29 @@ Route::middleware('auth')->group(function () {
         Route::get('/customer/orders', [App\Http\Controllers\CustomerController::class, 'orders'])->name('customer.orders');
         Route::get('/customer/profile', [App\Http\Controllers\CustomerController::class, 'profile'])->name('customer.profile');
         Route::get('/customer/reviews', [App\Http\Controllers\CustomerController::class, 'reviews'])->name('customer.reviews');
-        Route::get('/customer/wishlist', [App\Http\Controllers\CustomerController::class, 'wishlist'])->name('customer.wishlist');
-        Route::get('/customer/wishlist/count', [App\Http\Controllers\CustomerController::class, 'wishlistCount'])->name('customer.wishlist.count');
+        Route::get('/customer/notifications', [App\Http\Controllers\CustomerController::class, 'notifications'])->name('customer.notifications');
+        Route::get('/customer/notifications/count', [App\Http\Controllers\CustomerController::class, 'notificationCount'])->name('customer.notifications.count');
+        
+        // Wishlist Routes - Using WishlistController
+        Route::get('/customer/wishlist', [App\Http\Controllers\WishlistController::class, 'index'])->name('customer.wishlist');
+        Route::get('/customer/wishlist/count', [App\Http\Controllers\WishlistController::class, 'getCount'])->name('customer.wishlist.count');
+        Route::delete('/customer/wishlist/remove/{productId}', [App\Http\Controllers\WishlistController::class, 'destroy'])->name('customer.wishlist.remove');
+        
         Route::post('/customer/profile/update', [App\Http\Controllers\CustomerController::class, 'updateProfile'])->name('customer.profile.update');
         Route::post('/customer/address/update', [App\Http\Controllers\CustomerController::class, 'updateAddress'])->name('customer.address.update');
         Route::post('/customer/password/update', [App\Http\Controllers\CustomerController::class, 'updatePassword'])->name('customer.password.update');
         Route::put('/customer/preferences/update', [App\Http\Controllers\CustomerController::class, 'updatePreferences'])->name('customer.preferences.update');
-        Route::get('/customer/wishlist/remove/{id}', [App\Http\Controllers\CustomerController::class, 'removeFromWishlist'])->name('customer.wishlist.remove');
         Route::post('/customer/review/store', [App\Http\Controllers\CustomerController::class, 'storeReview'])->name('customer.review.store');
         Route::post('/customer/order/{id}/cancel', [App\Http\Controllers\CustomerController::class, 'cancelOrder'])->name('customer.order.cancel');
         Route::get('/customer/order/{id}/view', [App\Http\Controllers\CustomerController::class, 'viewOrder'])->name('customer.order.view');
+    });
+
+    // Wishlist Routes (for AJAX requests - accessible by authenticated users)
+    Route::middleware('auth')->group(function () {
+        Route::post('/wishlist/add', [App\Http\Controllers\WishlistController::class, 'store'])->name('wishlist.add');
+        Route::delete('/wishlist/remove', [App\Http\Controllers\WishlistController::class, 'destroy'])->name('wishlist.remove');
+        Route::post('/wishlist/toggle', [App\Http\Controllers\WishlistController::class, 'toggle'])->name('wishlist.toggle');
+        Route::post('/wishlist/move-to-cart', [App\Http\Controllers\WishlistController::class, 'moveToCart'])->name('wishlist.move.to.cart');
     });
 
     // Cart (accessible by all users, authentication handled in controller)
@@ -563,3 +590,52 @@ Route::get('/test-esewa-urls', function() {
     
     return $html;
 });
+// Debug vendor products (remove in production)
+Route::get('/debug-vendor-products', function() {
+    if (!auth()->check() || auth()->user()->role !== 'vendor') {
+        return 'Please login as a vendor first';
+    }
+    
+    $vendor = auth()->user();
+    
+    $debug = [
+        'vendor_info' => [
+            'id' => $vendor->id,
+            'name' => $vendor->name,
+            'email' => $vendor->email,
+            'role' => $vendor->role
+        ],
+        'products_for_vendor' => App\Models\Product::where('user_id', $vendor->id)->count(),
+        'all_products' => App\Models\Product::count(),
+        'products_with_null_user_id' => App\Models\Product::whereNull('user_id')->count(),
+        'products_with_zero_user_id' => App\Models\Product::where('user_id', 0)->count(),
+        'sample_products' => App\Models\Product::select('id', 'post_title', 'user_id')->limit(10)->get()->toArray(),
+        'orders_for_vendor' => App\Models\Order::whereHas('product', function($q) use ($vendor) {
+            $q->where('user_id', $vendor->id);
+        })->count(),
+        'all_orders' => App\Models\Order::count()
+    ];
+    
+    return '<pre>' . json_encode($debug, JSON_PRETTY_PRINT) . '</pre>';
+})->middleware('auth')->name('debug.vendor.products');
+// Fix vendor products assignment (remove in production)
+Route::get('/fix-vendor-products', function() {
+    if (!auth()->check() || auth()->user()->role !== 'vendor') {
+        return 'Please login as a vendor first';
+    }
+    
+    $vendor = auth()->user();
+    
+    // Get products that don't have a user_id or have user_id = 0
+    $unassignedProducts = App\Models\Product::where(function($query) {
+        $query->whereNull('user_id')->orWhere('user_id', 0);
+    })->get();
+    
+    $assignedCount = 0;
+    foreach ($unassignedProducts as $product) {
+        $product->update(['user_id' => $vendor->id]);
+        $assignedCount++;
+    }
+    
+    return "Assigned {$assignedCount} products to vendor {$vendor->name}. <a href='" . route('vendor.dashboard') . "'>Go to dashboard</a>";
+})->middleware('auth')->name('fix.vendor.products');

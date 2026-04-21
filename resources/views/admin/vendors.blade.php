@@ -51,14 +51,14 @@
         <div class="stat-icon"><i class="fas fa-store"></i></div>
     </div>
     <div class="stat-card pending">
-        <div class="stat-number">{{ $vendors->where('role', 'vendor')->count() }}</div>
-        <div class="stat-label">Active Vendors</div>
-        <div class="stat-icon"><i class="fas fa-check"></i></div>
+        <div class="stat-number">{{ $vendors->where('approval_status', 'pending')->count() }}</div>
+        <div class="stat-label">Pending Approval</div>
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
     </div>
-    <div class="stat-card blocked">
-        <div class="stat-number">0</div>
-        <div class="stat-label">Blocked Vendors</div>
-        <div class="stat-icon"><i class="fas fa-ban"></i></div>
+    <div class="stat-card approved">
+        <div class="stat-number">{{ $vendors->where('approval_status', 'approved')->count() }}</div>
+        <div class="stat-label">Approved Vendors</div>
+        <div class="stat-icon"><i class="fas fa-check"></i></div>
     </div>
     <div class="stat-card revenue">
         <div class="stat-number">{{ $vendors->sum('products_count') }}</div>
@@ -99,7 +99,8 @@
                         <th>Vendor Info</th>
                         <th>Contact Details</th>
                         <th>Products</th>
-                        <th>Status</th>
+                        <th>Approval Status</th>
+                        <th>Account Status</th>
                         <th>Joined Date</th>
                         <th>Actions</th>
                     </tr>
@@ -128,7 +129,20 @@
                             <span class="product-count">{{ $vendor->products_count ?? 0 }} Products</span>
                         </td>
                         <td>
-                            <span class="status-badge active">Active</span>
+                            @if($vendor->approval_status === 'pending')
+                                <span class="status-badge pending">⏳ Pending</span>
+                            @elseif($vendor->approval_status === 'approved')
+                                <span class="status-badge approved">✓ Approved</span>
+                            @else
+                                <span class="status-badge declined">✗ Declined</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($vendor->is_active)
+                                <span class="status-badge active">● Active</span>
+                            @else
+                                <span class="status-badge inactive">● Inactive</span>
+                            @endif
                         </td>
                         <td>{{ $vendor->created_at->format('M d, Y') }}</td>
                         <td>
@@ -137,6 +151,27 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu" id="dropdown-{{ $vendor->id }}">
+                                    @if($vendor->approval_status === 'pending')
+                                        <form action="{{ route('admin.vendor.approve', $vendor->id) }}" method="POST" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item" style="color: #10b981;">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('admin.vendor.decline', $vendor->id) }}" method="POST" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item danger">
+                                                <i class="fas fa-times"></i> Decline
+                                            </button>
+                                        </form>
+                                    @elseif($vendor->approval_status === 'declined')
+                                        <form action="{{ route('admin.vendor.approve', $vendor->id) }}" method="POST" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item" style="color: #10b981;">
+                                                <i class="fas fa-check"></i> Approve
+                                            </button>
+                                        </form>
+                                    @endif
                                     <button class="dropdown-item" onclick="viewVendor({{ $vendor->id }})">
                                         <i class="fas fa-eye"></i> View
                                     </button>
@@ -423,7 +458,7 @@
 
     .stat-card.active { border-left: 4px solid #10b981; }
     .stat-card.pending { border-left: 4px solid #f59e0b; }
-    .stat-card.blocked { border-left: 4px solid #ef4444; }
+    .stat-card.approved { border-left: 4px solid #10b981; }
     .stat-card.revenue { border-left: 4px solid #8b5cf6; }
 
     .stat-number {
@@ -445,7 +480,7 @@
 
     .stat-card.active .stat-icon { color: #10b981; }
     .stat-card.pending .stat-icon { color: #f59e0b; }
-    .stat-card.blocked .stat-icon { color: #ef4444; }
+    .stat-card.approved .stat-icon { color: #10b981; }
     .stat-card.revenue .stat-icon { color: #8b5cf6; }
 
     /* Search Section */
@@ -617,6 +652,21 @@
     }
 
     .status-badge.inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-badge.approved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-badge.declined {
         background: #fee2e2;
         color: #991b1b;
     }

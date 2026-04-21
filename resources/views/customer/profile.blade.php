@@ -3,304 +3,302 @@
 @section('title', 'My Profile')
 
 @section('content')
-<div class="welcome-section">
-    <h1>My Profile</h1>
-    <p>Update your personal information</p>
-</div>
 
 @if(session('success'))
-<div class="alert alert-success">
-    {{ session('success') }}
+<div class="alert-success-msg">
+    <i class="fas fa-check-circle"></i> {{ session('success') }}
 </div>
 @endif
 
 @if(session('error'))
-<div class="alert alert-danger">
-    {{ session('error') }}
+<div class="alert-error-msg">
+    <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
 </div>
 @endif
 
-@if($errors->any())
-<div class="alert alert-danger">
-    <strong>Please fix the following errors:</strong><br>
-    @foreach($errors->all() as $error)
-        • {{ $error }}<br>
-    @endforeach
-</div>
-@endif
-
-<!-- Personal Information -->
-<div class="section-card">
-    <div class="section-header">
-        <h2>Personal Information</h2>
+<div class="profile-page">
+    <div class="profile-page-header">
+        <h1>Profile Management</h1>
+        <p>Manage your account information and settings</p>
     </div>
-    <form method="POST" action="{{ route('customer.profile.update') }}" id="profileForm">
-        @csrf
-        
-        <div class="form-group">
-            <label for="name" class="form-label">Full Name *</label>
-            <input type="text" class="form-control" id="name" name="name" 
-                   value="{{ auth()->user()->name ?? '' }}" 
-                   placeholder="Enter your full name" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="email" class="form-label">Email Address *</label>
-            <input type="email" class="form-control" id="email" name="email" 
-                   value="{{ auth()->user()->email ?? '' }}" 
-                   placeholder="Enter your email address" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="phone" class="form-label">Phone Number *</label>
-            <input type="tel" class="form-control" id="phone" name="phone" 
-                   value="{{ auth()->user()->phone ?? '' }}" 
-                   placeholder="Enter your phone number (e.g., 9841234567)" required>
-        </div>
-        
-        <button type="submit" class="action-btn primary">Save Personal Info</button>
-    </form>
-</div>
 
-<!-- Address Information -->
-<div class="section-card">
-    <div class="section-header">
-        <h2>Delivery Address</h2>
+    <!-- Tabs -->
+    <div class="profile-tabs">
+        <button class="ptab-btn active" data-tab="account">
+            <i class="fas fa-user"></i> Account Details
+        </button>
+        <button class="ptab-btn" data-tab="password">
+            <i class="fas fa-lock"></i> Change Password
+        </button>
+        <button class="ptab-btn" data-tab="address">
+            <i class="fas fa-map-marker-alt"></i> Address Book
+        </button>
     </div>
-    <form method="POST" action="{{ route('customer.address.update') }}" id="addressForm">
-        @csrf
-        
-        <div class="form-group">
-            <label for="address_line1" class="form-label">Street Address *</label>
-            <input type="text" class="form-control" id="address_line1" name="address_line1" 
-                   value="{{ auth()->user()->address_line1 ?? '' }}" 
-                   placeholder="Enter your street address" required>
-            <small class="text-muted">Example: Thamel, Ward No. 26</small>
-        </div>
-        
-        <div class="form-group">
-            <label for="address_line2" class="form-label">Area/Landmark (Optional)</label>
-            <input type="text" class="form-control" id="address_line2" name="address_line2" 
-                   value="{{ auth()->user()->address_line2 ?? '' }}" 
-                   placeholder="Near landmark or area details">
-            <small class="text-muted">Example: Near Kathmandu Durbar Square</small>
-        </div>
-        
-        <div class="form-group">
-            <label for="city" class="form-label">City *</label>
-            <input type="text" class="form-control" id="city" name="city" 
-                   value="{{ auth()->user()->city ?? '' }}" 
-                   placeholder="Enter your city" required>
-            <small class="text-muted">Example: Kathmandu, Pokhara, Lalitpur</small>
-        </div>
-        
-        <button type="submit" class="action-btn primary">Save Address</button>
-    </form>
-</div>
 
-<!-- Change Password -->
-<div class="section-card">
-    <div class="section-header">
-        <h2>Change Password</h2>
+    <!-- Account Details -->
+    <div class="ptab-content active" id="account-tab">
+        <div class="pcard">
+            <h2><i class="fas fa-user-circle"></i> Account Information</h2>
+            <form action="{{ route('customer.profile.update') }}" method="POST" class="pform">
+                @csrf
+                <div class="pform-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" value="{{ $customer->name }}" required>
+                    @error('name')<span class="perror">{{ $message }}</span>@enderror
+                </div>
+                <div class="pform-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" value="{{ $customer->email }}" required>
+                    @error('email')<span class="perror">{{ $message }}</span>@enderror
+                </div>
+                <div class="pform-group">
+                    <label>Phone Number</label>
+                    <input type="text" name="phone" value="{{ $customer->phone }}" placeholder="Enter phone number">
+                    @error('phone')<span class="perror">{{ $message }}</span>@enderror
+                </div>
+                <button type="submit" class="pbtn-save">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
     </div>
-    <form method="POST" action="{{ route('customer.password.update') }}" id="passwordForm">
-        @csrf
-        
-        <div class="form-group">
-            <label for="current_password" class="form-label">Current Password *</label>
-            <input type="password" class="form-control" id="current_password" name="current_password" 
-                   placeholder="Enter your current password" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="new_password" class="form-label">New Password *</label>
-            <input type="password" class="form-control" id="new_password" name="new_password" 
-                   placeholder="Enter new password (minimum 6 characters)" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="new_password_confirmation" class="form-label">Confirm New Password *</label>
-            <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" 
-                   placeholder="Enter new password again" required>
-        </div>
-        
-        <div class="password-tips">
-            <h4>Password Tips:</h4>
-            <ul>
-                <li>Use at least 6 characters</li>
-                <li>Mix letters and numbers</li>
-                <li>Don't share your password</li>
-            </ul>
-        </div>
-        
-        <button type="submit" class="action-btn primary">Change Password</button>
-    </form>
-</div>
-@endsection
 
-@section('styles')
+    <!-- Change Password -->
+    <div class="ptab-content" id="password-tab">
+        <div class="pcard">
+            <h2><i class="fas fa-key"></i> Change Password</h2>
+            <form action="{{ route('customer.password.update') }}" method="POST" class="pform">
+                @csrf
+                <div class="pform-group">
+                    <label>Current Password</label>
+                    <input type="password" name="current_password" required>
+                    @error('current_password')<span class="perror">{{ $message }}</span>@enderror
+                </div>
+                <div class="pform-group">
+                    <label>New Password</label>
+                    <input type="password" name="new_password" required>
+                    <small class="phint">Minimum 6 characters</small>
+                    @error('new_password')<span class="perror">{{ $message }}</span>@enderror
+                </div>
+                <div class="pform-group">
+                    <label>Confirm New Password</label>
+                    <input type="password" name="new_password_confirmation" required>
+                </div>
+                <button type="submit" class="pbtn-save">
+                    <i class="fas fa-lock"></i> Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Address Book -->
+    <div class="ptab-content" id="address-tab">
+        <div class="pcard">
+            <h2><i class="fas fa-address-book"></i> Address Book</h2>
+            <form action="{{ route('customer.address.update') }}" method="POST" class="pform">
+                @csrf
+                <div class="pform-group">
+                    <label>Province</label>
+                    <select name="province">
+                        <option value="">Select Province</option>
+                        @foreach(['Koshi','Madhesh','Bagmati','Gandaki','Lumbini','Karnali','Sudurpashchim'] as $p)
+                            <option value="{{ $p }}" {{ ($customer->province ?? '') == $p ? 'selected' : '' }}>{{ $p }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="pform-group">
+                    <label>District</label>
+                    <input type="text" name="district" value="{{ $customer->district ?? '' }}" placeholder="e.g. Kathmandu">
+                </div>
+                <div class="pform-group">
+                    <label>City / Municipality</label>
+                    <input type="text" name="city" value="{{ $customer->city ?? '' }}" placeholder="e.g. Kathmandu Metropolitan City">
+                    @error('city')<span class="perror">{{ $message }}</span>@enderror
+                </div>
+                <div class="pform-group">
+                    <label>Street / Tole</label>
+                    <input type="text" name="address_line1" value="{{ $customer->address_line1 ?? '' }}" placeholder="e.g. Thamel, Ward No. 26">
+                </div>
+                <button type="submit" class="pbtn-save">
+                    <i class="fas fa-map-marker-alt"></i> Save Address
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
-    .password-tips {
-        background: #f0f9ff;
-        border: 1px solid #bae6fd;
-        border-radius: 8px;
-        padding: 15px;
-        margin: 15px 0;
-    }
+.alert-success-msg, .alert-error-msg {
+    padding: 14px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+.alert-success-msg { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.alert-error-msg { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
-    .password-tips h4 {
-        margin: 0 0 10px 0;
-        color: #0369a1;
-        font-size: 14px;
-    }
+.profile-page { max-width: 900px; margin: 0 auto; }
 
-    .password-tips ul {
-        margin: 0;
-        padding-left: 20px;
-        color: #0369a1;
-        font-size: 13px;
-    }
+.profile-page-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+.profile-page-header h1 { font-size: 28px; color: #2c3e50; margin-bottom: 6px; }
+.profile-page-header p { color: #6c757d; font-size: 15px; }
 
-    .password-tips li {
-        margin-bottom: 5px;
-    }
+.profile-tabs {
+    display: flex;
+    gap: 5px;
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 25px;
+    overflow-x: auto;
+}
 
-    .form-control {
-        font-size: 16px;
-        padding: 12px 15px;
-    }
+.ptab-btn {
+    padding: 12px 22px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6c757d;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+.ptab-btn:hover { color: #667eea; }
+.ptab-btn.active { color: #667eea; border-bottom-color: #667eea; font-weight: 600; }
+.ptab-btn i { margin-right: 6px; }
 
-    .form-control:focus {
-        border-color: #3498db;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
+.ptab-content { display: none; }
+.ptab-content.active { display: block; animation: pfadeIn 0.3s ease; }
 
-    .text-muted {
-        color: #6b7280;
-        font-size: 12px;
-        margin-top: 5px;
-        display: block;
-    }
+@keyframes pfadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
-    .section-header h2 {
-        font-size: 18px;
-        margin-bottom: 15px;
-    }
+.pcard {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.pcard h2 {
+    font-size: 20px;
+    color: #2c3e50;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.pcard h2 i { color: #667eea; }
 
-    .alert {
-        border-radius: 8px;
-        padding: 15px;
-        margin-bottom: 20px;
-        font-weight: 500;
-    }
+.pform { max-width: 560px; }
 
-    .alert-success {
-        background: #d1fae5;
-        color: #065f46;
-        border: 1px solid #a7f3d0;
-    }
+.pform-group { margin-bottom: 18px; }
+.pform-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 14px;
+}
+.pform-group input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+.pform-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
+.pform-group select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 15px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+.pform-group select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
 
-    .alert-danger {
-        background: #fee2e2;
-        color: #991b1b;
-        border: 1px solid #fca5a5;
-    }
+.phint { display: block; margin-top: 5px; color: #6c757d; font-size: 13px; }
+.poptional { color: #aaa; font-weight: 400; font-size: 13px; }
+.perror { display: block; color: #dc3545; font-size: 13px; margin-top: 4px; }
 
-    .action-btn {
-        margin-top: 10px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
+.pbtn-save {
+    margin-top: 5px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.pbtn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+}
+.pbtn-save i { margin-right: 7px; }
 
-    .action-btn:hover {
-        transform: translateY(-1px);
-    }
+.paddress-note {
+    background: #f0f4ff;
+    border-left: 4px solid #667eea;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 22px;
+    color: #555;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.paddress-note i { color: #667eea; }
 
-    .action-btn:active {
-        transform: translateY(0);
-    }
-
-    @media (max-width: 768px) {
-        .form-control {
-            font-size: 16px; /* Prevents zoom on iOS */
-        }
-    }
+@media (max-width: 600px) {
+    .pcard { padding: 20px; }
+    .pform-row { grid-template-columns: 1fr; }
+    .ptab-btn { padding: 10px 14px; font-size: 13px; }
+}
 </style>
-@endsection
 
-@section('scripts')
 <script>
-    // Password confirmation check - only for password form
-    document.getElementById('passwordForm').addEventListener('submit', function(e) {
-        const newPassword = document.getElementById('new_password').value;
-        const confirmPassword = document.getElementById('new_password_confirmation').value;
-        
-        if (newPassword !== confirmPassword) {
-            e.preventDefault();
-            alert('New passwords do not match! Please try again.');
-            return false;
-        }
-        
-        if (newPassword.length < 6) {
-            e.preventDefault();
-            alert('Password must be at least 6 characters long!');
-            return false;
-        }
-        
-        // Allow form to submit normally
-        return true;
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    const tabBtns = document.querySelectorAll('.ptab-btn');
+    const tabContents = document.querySelectorAll('.ptab-content');
 
-    // Phone number formatting for Nepal
-    const phoneInput = document.getElementById('phone');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, ''); // Remove non-digits
-            if (value.length > 10) {
-                value = value.substring(0, 10);
-            }
-            e.target.value = value;
-        });
-    }
-
-    // Simple validation for required fields - but don't prevent submission if filled
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const requiredFields = this.querySelectorAll('input[required]');
-            let hasError = false;
-            
-            requiredFields.forEach(field => {
-                if (!field.value.trim()) {
-                    hasError = true;
-                    field.style.borderColor = '#dc2626';
-                    field.focus();
-                } else {
-                    field.style.borderColor = '#d1d5db';
-                }
-            });
-            
-            if (hasError) {
-                e.preventDefault();
-                alert('Please fill in all required fields (marked with *)');
-                return false;
-            }
-            
-            // If no errors, allow form to submit
-            return true;
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById(this.getAttribute('data-tab') + '-tab').classList.add('active');
         });
     });
 
-    // Debug: Log form submissions
-    document.getElementById('profileForm').addEventListener('submit', function(e) {
-        console.log('Profile form submitting...');
+    // Auto-hide alerts
+    document.querySelectorAll('.alert-success-msg, .alert-error-msg').forEach(el => {
+        setTimeout(() => el.remove(), 5000);
     });
-
-    document.getElementById('addressForm').addEventListener('submit', function(e) {
-        console.log('Address form submitting...');
-    });
-
-    document.getElementById('passwordForm').addEventListener('submit', function(e) {
-        console.log('Password form submitting...');
-    });
+});
 </script>
+
 @endsection
